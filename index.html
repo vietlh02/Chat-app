@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hội Ngựa què</title>
+    <title>Hội ngựa què</title>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -22,8 +22,114 @@
             color: #fff;
             min-height: 100vh;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
+        /* Login Screen */
+        .login-container {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .login-title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #00ffcc;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+        }
+        
+        .login-subtitle {
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            text-align: left;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #00ffcc;
+            font-weight: bold;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #00ffcc;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .form-input::placeholder {
+            color: #888;
+        }
+        
+        .login-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background: linear-gradient(135deg, #00ffcc, #00ccff);
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 204, 0.4);
+        }
+        
+        .login-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .login-error {
+            color: #ff4444;
+            background: rgba(255, 68, 68, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 3px solid #ff4444;
+            display: none;
+        }
+        
+        .login-info {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            line-height: 1.4;
+        }
+        
+        /* Main App */
         .container {
             max-width: 900px;
             margin: 0 auto;
@@ -31,6 +137,7 @@
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: none;
         }
         
         header {
@@ -74,6 +181,22 @@
             color: #ccc;
         }
         
+        .logout-btn {
+            margin-top: 10px;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 3px;
+            background-color: #ff4444;
+            color: white;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background-color: #ff6666;
+        }
+        
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -98,7 +221,6 @@
             position: relative;
         }
         
-        /* Tin nhắn người khác - bên trái */
         .message.other {
             align-self: flex-start;
             background: linear-gradient(135deg, #2a3a7c, #3a4a8c);
@@ -106,7 +228,6 @@
             border: 1px solid #00ffcc;
         }
         
-        /* Tin nhắn của tôi - bên phải */
         .message.own {
             align-self: flex-end;
             background: linear-gradient(135deg, #0066cc, #0088ff);
@@ -114,7 +235,6 @@
             border: 1px solid #00ccff;
         }
         
-        /* Tin nhắn hệ thống - căn giữa */
         .message.system {
             align-self: center;
             max-width: 90%;
@@ -365,12 +485,57 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Login Screen -->
+    <div class="login-container" id="loginContainer">
+        <h1 class="login-title">Chat Binary</h1>
+        <p class="login-subtitle">Vui lòng đăng nhập để tiếp tục</p>
+        
+        <form class="login-form" id="loginForm">
+            <div class="form-group">
+                <label class="form-label" for="loginUsername">Tên người dùng</label>
+                <input 
+                    type="text" 
+                    id="loginUsername" 
+                    class="form-input" 
+                    placeholder="Nhập tên của bạn..."
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="loginPassword">Mật khẩu</label>
+                <input 
+                    type="password" 
+                    id="loginPassword" 
+                    class="form-input" 
+                    placeholder="Nhập mật khẩu..."
+                    required
+                >
+            </div>
+            
+            <div class="login-error" id="loginError">
+                Sai tên người dùng hoặc mật khẩu!
+            </div>
+            
+            <button type="submit" class="login-btn" id="loginBtn">
+                🔐 Đăng nhập
+            </button>
+        </form>
+        
+        <div class="login-info">
+            <p><strong>Lưu ý:</strong> Mật khẩu mặc định là <code>123456</code></p>
+            <p>Mỗi người dùng cần có mật khẩu để đảm bảo an toàn</p>
+        </div>
+    </div>
+
+    <!-- Main App (Hidden until login) -->
+    <div class="container" id="appContainer">
         <header>
-            <h1>Chat Nhóm với Mã Nhị Phân</h1>
+            <h1>Hội ngựa què</h1>
             <p class="subtitle">Kết nối và trò chuyện với mọi người - Tin nhắn được hiển thị dưới dạng mã nhị phân</p>
             <div class="status" id="connectionStatus">Đang kết nối đến Firebase...</div>
             <div class="user-identity" id="userIdentity">Đang nhận diện người dùng...</div>
+            <button class="logout-btn" onclick="logout()">🚪 Đăng xuất</button>
         </header>
         
         <div class="chat-container">
@@ -400,10 +565,10 @@
         
         <div class="info-box">
             <h3>Hướng dẫn sử dụng</h3>
+            <p>• 🔐 <strong>Bảo mật</strong>: Đăng nhập bắt buộc để sử dụng</p>
             <p>• 👤 <strong>Tên tự động</strong>: Hệ thống nhớ tên của bạn khi quay lại</p>
-            <p>• 🔍 <strong>Dịch tin nhắn</strong>: Nhấn giữ vào mã nhị phân để xem nội dung gốc (giữ cho đến khi muốn xem)</p>
-            <p>• 💬 <strong>Tin nhắn của bạn</strong> - Hiển thị bên phải (màu xanh)</p>
-            <p>• 💬 <strong>Tin nhắn người khác</strong> - Hiển thị bên trái (màu xanh lá)</p>
+            <p>• 🔍 <strong>Dịch tin nhắn</strong>: Nhấn giữ vào mã nhị phân để xem nội dung gốc</p>
+            <p>• 💬 <strong>Phân biệt tin nhắn</strong>: Của bạn (phải) - Người khác (trái)</p>
         </div>
     </div>
 
@@ -428,8 +593,6 @@
             console.log("Firebase initialized successfully");
         } catch (error) {
             console.error("Firebase initialization error:", error);
-            document.getElementById('connectionStatus').textContent = 'Lỗi khởi tạo Firebase: ' + error.message;
-            document.getElementById('connectionStatus').classList.add('error');
         }
 
         // Hàm tạo fingerprint cho người dùng
@@ -461,21 +624,89 @@
 
         // Biến toàn cục
         let userFingerprint = localStorage.getItem('userFingerprint') || generateUserFingerprint();
-        let username = localStorage.getItem('chatUsername') || 'Người dùng';
+        let username = '';
         let isConnected = false;
         let loadedMessageIds = new Set();
         let lastMessageKey = null;
+        let isLoggedIn = false;
 
-        // Lưu thông tin người dùng
-        localStorage.setItem('userFingerprint', userFingerprint);
-        localStorage.setItem('chatUsername', username);
+        // Mật khẩu mặc định (có thể thay đổi)
+        const DEFAULT_PASSWORD = 'hoinguaquezxc';
 
-        // Hiển thị thông tin người dùng
-        document.getElementById('userIdentity').innerHTML = 
-            `👤 <strong>${username}</strong> | 🆔 <code>${userFingerprint}</code>`;
+        // Kiểm tra nếu đã đăng nhập trước đó
+        function checkExistingLogin() {
+            const savedLogin = localStorage.getItem('userLogin');
+            if (savedLogin) {
+                const loginData = JSON.parse(savedLogin);
+                if (loginData.fingerprint === userFingerprint) {
+                    // Tự động đăng nhập nếu cùng fingerprint
+                    username = loginData.username;
+                    showApp();
+                }
+            }
+        }
 
-        // Đặt username vào input
-        document.getElementById('username').value = username;
+        // Hiển thị màn hình đăng nhập
+        function showLogin() {
+            document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('appContainer').style.display = 'none';
+            isLoggedIn = false;
+        }
+
+        // Hiển thị ứng dụng chính
+        function showApp() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            isLoggedIn = true;
+            
+            // Khởi tạo ứng dụng
+            initializeApp();
+        }
+
+        // Đăng xuất
+        function logout() {
+            localStorage.removeItem('userLogin');
+            username = '';
+            showLogin();
+        }
+
+        // Xử lý đăng nhập
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const loginUsername = document.getElementById('loginUsername').value.trim();
+            const loginPassword = document.getElementById('loginPassword').value;
+            const loginError = document.getElementById('loginError');
+            
+            // Kiểm tra mật khẩu
+            if (loginPassword !== DEFAULT_PASSWORD) {
+                loginError.style.display = 'block';
+                return;
+            }
+            
+            if (!loginUsername) {
+                loginError.textContent = 'Vui lòng nhập tên người dùng!';
+                loginError.style.display = 'block';
+                return;
+            }
+            
+            // Đăng nhập thành công
+            username = loginUsername;
+            loginError.style.display = 'none';
+            
+            // Lưu thông tin đăng nhập
+            const loginData = {
+                username: username,
+                fingerprint: userFingerprint,
+                loginTime: Date.now()
+            };
+            localStorage.setItem('userLogin', JSON.stringify(loginData));
+            localStorage.setItem('chatUsername', username);
+            localStorage.setItem('userFingerprint', userFingerprint);
+            
+            // Hiển thị ứng dụng
+            showApp();
+        });
 
         // Hàm chuyển đổi sang mã nhị phân
         function textToAsciiBinary(text) {
@@ -495,7 +726,7 @@
             }).join(' ');
         }
         
-        // Hàm xử lý nhấn giữ để dịch - ĐÃ SỬA
+        // Hàm xử lý nhấn giữ để dịch
         function setupHoldToTranslate(element, messageText) {
             let holdTimer;
             let isHolding = false;
@@ -516,7 +747,6 @@
                 element.classList.add('holding');
                 
                 holdTimer = setTimeout(() => {
-                    // Hiển thị bản dịch sau 0.5 giây nhấn giữ
                     messageText.classList.add('show');
                 }, 500);
             }
@@ -527,7 +757,6 @@
                     holdTimer = null;
                 }
                 
-                // ẨN BẢN DỊCH KHI BỎ GIỮ - ĐÃ SỬA
                 messageText.classList.remove('show');
                 isHolding = false;
                 element.classList.remove('holding');
@@ -579,7 +808,6 @@
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
             
-            // Thiết lập nhấn giữ cho mã nhị phân
             const binaryElement = messageElement.querySelector('.message-binary');
             const textElement = messageElement.querySelector('.message-text');
             setupHoldToTranslate(binaryElement, textElement);
@@ -595,7 +823,7 @@
         
         // Hàm gửi tin nhắn với fingerprint
         function sendMessage(message, encoding) {
-            if (!isConnected) {
+            if (!isConnected || !isLoggedIn) {
                 addMessage('Hệ thống', 'Chưa kết nối đến server', 'utf8', 'system');
                 return;
             }
@@ -609,11 +837,9 @@
                 userAgent: navigator.userAgent.substr(0, 50)
             };
             
-            // HIỂN THỊ TIN NHẮN NGAY LẬP TỨC
             const tempMessageId = 'temp_' + Date.now();
             addMessage('Bạn', message, encoding, 'own', Date.now(), tempMessageId);
             
-            // Gửi lên Firebase
             database.ref('messages').push(messageData)
                 .then((newRef) => {
                     console.log('Tin nhắn đã gửi thành công, key:', newRef.key);
@@ -644,10 +870,8 @@
                         lastMessageKey = latestKey;
                     }
                     
-                    // Sắp xếp theo thời gian
                     messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
                     
-                    // Hiển thị tin nhắn
                     if (messages.length > 0) {
                         messages.forEach(message => {
                             const isOwnMessage = message.userFingerprint === userFingerprint;
@@ -666,7 +890,6 @@
                         document.getElementById('loadingMessages').innerHTML = 'Chưa có tin nhắn nào. Hãy là người đầu tiên!';
                     }
                     
-                    // BẮT ĐẦU LẮNG NGHE TIN NHẮN MỚI
                     startListeningForNewMessages();
                 })
                 .catch(error => {
@@ -705,10 +928,15 @@
         
         // Khởi tạo ứng dụng
         function initializeApp() {
-            if (!firebase.apps.length) {
+            if (!firebase.apps.length || !isLoggedIn) {
                 document.getElementById('connectionStatus').textContent = 'Firebase chưa được khởi tạo';
                 return;
             }
+            
+            // Hiển thị thông tin người dùng
+            document.getElementById('userIdentity').innerHTML = 
+                `👤 <strong>${username}</strong> | 🆔 <code>${userFingerprint}</code>`;
+            document.getElementById('username').value = username;
             
             // Kiểm tra kết nối Firebase
             const connectedRef = database.ref(".info/connected");
@@ -720,7 +948,6 @@
                     document.getElementById('sendButton').disabled = false;
                     document.getElementById('messageInput').disabled = false;
                     
-                    // Tải tin nhắn khi kết nối thành công
                     loadMessageHistory();
                     
                 } else {
@@ -730,6 +957,8 @@
                     document.getElementById('sendButton').disabled = true;
                 }
             });
+            
+            addMessage('Hệ thống', `Chào mừng ${username}! Bạn đã đăng nhập thành công.`, 'utf8', 'system');
         }
         
         // Sự kiện gửi tin nhắn
@@ -742,6 +971,12 @@
         document.getElementById('username').addEventListener('input', function(e) {
             username = e.target.value.trim() || 'Người dùng';
             localStorage.setItem('chatUsername', username);
+            
+            // Cập nhật thông tin đăng nhập
+            const loginData = JSON.parse(localStorage.getItem('userLogin') || '{}');
+            loginData.username = username;
+            localStorage.setItem('userLogin', JSON.stringify(loginData));
+            
             document.getElementById('userIdentity').innerHTML = 
                 `👤 <strong>${username}</strong> | 🆔 <code>${userFingerprint}</code>`;
         });
@@ -761,13 +996,7 @@
         
         // Bắt đầu ứng dụng
         document.addEventListener('DOMContentLoaded', function() {
-            if (firebase.apps.length) {
-                initializeApp();
-                addMessage('Hệ thống', `Chào mừng trở lại ${username}!`, 'utf8', 'system');
-            } else {
-                document.getElementById('connectionStatus').textContent = '❌ Lỗi: Firebase không khởi tạo được';
-                document.getElementById('connectionStatus').classList.add('error');
-            }
+            checkExistingLogin();
         });
     </script>
 </body>
