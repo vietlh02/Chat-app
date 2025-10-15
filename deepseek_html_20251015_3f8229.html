@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Nhóm với Mã Nhị Phân</title>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+        import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBb2p8I5RRcLdTxb-UlKbXFDMDvSNBFYJo",
+            authDomain: "chat-app-8b048.firebaseapp.com",
+            projectId: "chat-app-8b048",
+            storageBucket: "chat-app-8b048.firebasestorage.app",
+            messagingSenderId: "222525270808",
+            appId: "1:222525270808:web:400e8cbe23f85967728c6d",
+            measurementId: "G-SJKPRW4JW8"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const analytics = getAnalytics(app);
+
+        // Make Firebase available globally
+        window.firebase = {
+            database: database,
+            ref: ref,
+            push: push,
+            onChildAdded: onChildAdded,
+            serverTimestamp: serverTimestamp
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #00ffcc;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: #00ffcc;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            color: #aaa;
+        }
+        
+        .status {
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            background-color: rgba(0, 255, 204, 0.2);
+            display: inline-block;
+        }
+        
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: rgba(10, 10, 20, 0.8);
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            background-color: rgba(30, 30, 60, 0.8);
+            border-left: 4px solid #00ffcc;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .message.system {
+            border-left-color: #ff9900;
+            background-color: rgba(60, 30, 10, 0.8);
+        }
+        
+        .message.own {
+            border-left-color: #00ccff;
+            background-color: rgba(10, 30, 60, 0.8);
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+        }
+        
+        .message-user {
+            font-weight: bold;
+            color: #00ffcc;
+        }
+        
+        .message.system .message-user {
+            color: #ff9900;
+        }
+        
+        .message.own .message-user {
+            color: #00ccff;
+        }
+        
+        .message-time {
+            color: #888;
+        }
+        
+        .message-binary {
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 8px;
+            border-radius: 5px;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .message-text {
+            margin-top: 5px;
+            font-style: italic;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .input-area {
+            display: flex;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-top: 2px solid #00ffcc;
+        }
+        
+        .user-info {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        
+        input, select {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        input::placeholder {
+            color: #aaa;
+        }
+        
+        button {
+            padding: 12px 25px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #00ffcc;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #00e6b8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 204, 0.4);
+        }
+        
+        button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .info-box {
+            background-color: rgba(0, 20, 40, 0.8);
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #ff9900;
+        }
+        
+        .info-box h3 {
+            color: #ff9900;
+            margin-bottom: 10px;
+        }
+        
+        .encoding-selector {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+        
+        .encoding-selector label {
+            color: #00ffcc;
+            font-weight: bold;
+        }
+        
+        .binary-details {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+        
+        .online-users {
+            background-color: rgba(0, 20, 40, 0.8);
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #00ffcc;
+        }
+        
+        .online-users h3 {
+            color: #00ffcc;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .user-count {
+            color: #00ffcc;
+            font-weight: bold;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 10px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .input-area {
+                flex-direction: column;
+            }
+            
+            input, select {
+                margin-bottom: 10px;
+            }
+            
+            button {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Chat Nhóm với Mã Nhị Phân</h1>
+            <p class="subtitle">Kết nối và trò chuyện với mọi người - Tin nhắn được hiển thị dưới dạng mã nhị phân</p>
+            <div class="status" id="connectionStatus">Đang kết nối...</div>
+        </header>
+        
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <!-- Tin nhắn sẽ được thêm vào đây bằng JavaScript -->
+                <div class="message system">
+                    <div class="message-header">
+                        <span class="message-user">Hệ thống</span>
+                        <span class="message-time" id="currentTime"></span>
+                    </div>
+                    <div class="message-binary">01010111 01100101 01101100 01100011 01101111 01101101 01100101 00100000 01110100 01101111 00100000 01000010 01101001 01101110 01100001 01110010 01111001 00100000 01000011 01101000 01100001 01110100</div>
+                    <div class="message-text">Chào mừng đến với Binary Chat! Đang kết nối...</div>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <div style="display: flex; flex-direction: column; width: 100%;">
+                    <div class="encoding-selector">
+                        <label for="encodingType">Mã hóa:</label>
+                        <select id="encodingType">
+                            <option value="ascii">ASCII (7-bit)</option>
+                            <option value="utf8" selected>UTF-8 (8-bit)</option>
+                        </select>
+                    </div>
+                    <div class="user-info">
+                        <input type="text" id="username" placeholder="Tên của bạn..." value="Người dùng">
+                    </div>
+                    <div style="display: flex;">
+                        <input type="text" id="messageInput" placeholder="Nhập tin nhắn của bạn...">
+                        <button id="sendButton" disabled>Gửi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h3>Thông tin về mã hóa ASCII/UTF-8</h3>
+            <p><strong>ASCII (American Standard Code for Information Interchange)</strong>: Sử dụng 7 bit để biểu diễn 128 ký tự, bao gồm chữ cái, số và ký tự điều khiển.</p>
+            <p><strong>UTF-8 (Unicode Transformation Format - 8-bit)</strong>: Sử dụng từ 1 đến 4 byte (8-32 bit) để biểu diễn hơn 1 triệu ký tự, hỗ trợ hầu hết ngôn ngữ trên thế giới.</p>
+            <p>Trong ứng dụng này, bạn có thể chọn giữa mã hóa ASCII (7-bit) hoặc UTF-8 (8-bit) để chuyển đổi tin nhắn thành mã nhị phân.</p>
+        </div>
+    </div>
+
+    <script>
+        // Tạo ID người dùng ngẫu nhiên
+        const userId = 'user_' + Math.random().toString(36).substr(2, 9);
+        let username = 'Người dùng';
+        let isConnected = false;
+
+        // Hàm chuyển đổi văn bản thành mã nhị phân ASCII
+        function textToAsciiBinary(text) {
+            return text.split('').map(char => {
+                const asciiCode = char.charCodeAt(0);
+                // ASCII chỉ sử dụng 7 bit, nhưng chúng ta hiển thị dưới dạng 8 bit
+                const binary = asciiCode.toString(2);
+                return '0'.repeat(8 - binary.length) + binary;
+            }).join(' ');
+        }
+        
+        // Hàm chuyển đổi văn bản thành mã nhị phân UTF-8
+        function textToUtf8Binary(text) {
+            const encoder = new TextEncoder();
+            const bytes = encoder.encode(text);
+            
+            return Array.from(bytes).map(byte => {
+                const binary = byte.toString(2);
+                return '0'.repeat(8 - binary.length) + binary;
+            }).join(' ');
+        }
+        
+        // Hàm thêm tin nhắn vào khung chat
+        function addMessage(user, message, encoding, messageType = 'normal') {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageElement = document.createElement('div');
+            
+            let messageClass = 'message';
+            if (messageType === 'system') {
+                messageClass += ' system';
+            } else if (messageType === 'own') {
+                messageClass += ' own';
+            }
+            
+            messageElement.className = messageClass;
+            
+            const now = new Date();
+            const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            
+            const binaryMessage = encoding === 'ascii' 
+                ? textToAsciiBinary(message) 
+                : textToUtf8Binary(message);
+            
+            messageElement.innerHTML = `
+                <div class="message-header">
+                    <span class="message-user">${user}</span>
+                    <span class="message-time">${timeString}</span>
+                </div>
+                <div class="message-binary">${binaryMessage}</div>
+                <div class="message-text">${message}</div>
+                ${messageType === 'normal' ? `<div class="binary-details">Mã hóa: ${encoding === 'ascii' ? 'ASCII (7-bit)' : 'UTF-8 (8-bit)'}</div>` : ''}
+            `;
+            
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Hàm gửi tin nhắn lên Firebase
+        function sendMessage(message, encoding) {
+            if (!window.firebase || !isConnected) {
+                addMessage('Hệ thống', 'Chưa kết nối đến server. Vui lòng thử lại.', 'utf8', 'system');
+                return;
+            }
+            
+            const messageData = {
+                userId: userId,
+                username: username,
+                message: message,
+                encoding: encoding,
+                timestamp: window.firebase.serverTimestamp()
+            };
+            
+            window.firebase.push(window.firebase.ref(window.firebase.database, 'messages'), messageData)
+                .catch(error => {
+                    console.error('Lỗi gửi tin nhắn:', error);
+                    addMessage('Hệ thống', 'Lỗi gửi tin nhắn: ' + error.message, 'utf8', 'system');
+                });
+        }
+        
+        // Khởi tạo ứng dụng khi Firebase đã sẵn sàng
+        function initializeApp() {
+            // Kiểm tra Firebase đã sẵn sàng chưa
+            const checkFirebase = setInterval(() => {
+                if (window.firebase && window.firebase.database) {
+                    clearInterval(checkFirebase);
+                    setupFirebase();
+                }
+            }, 100);
+        }
+        
+        // Thiết lập Firebase
+        function setupFirebase() {
+            const messagesRef = window.firebase.ref(window.firebase.database, 'messages');
+            
+            // Lắng nghe tin nhắn mới từ Firebase
+            window.firebase.onChildAdded(messagesRef, (snapshot) => {
+                const messageData = snapshot.val();
+                
+                if (messageData && messageData.username && messageData.message) {
+                    // Chỉ hiển thị tin nhắn nếu không phải là tin nhắn của chính mình
+                    // (để tránh hiển thị trùng lặp)
+                    if (messageData.userId !== userId) {
+                        addMessage(messageData.username, messageData.message, messageData.encoding || 'utf8');
+                    }
+                }
+            });
+            
+            // Cập nhật trạng thái kết nối
+            isConnected = true;
+            document.getElementById('connectionStatus').textContent = 'Đã kết nối';
+            document.getElementById('connectionStatus').style.backgroundColor = 'rgba(0, 255, 0, 0.2)';
+            document.getElementById('sendButton').disabled = false;
+            
+            addMessage('Hệ thống', 'Kết nối thành công! Bạn có thể bắt đầu trò chuyện.', 'utf8', 'system');
+        }
+        
+        // Xử lý sự kiện khi nhấn nút gửi
+        document.getElementById('sendButton').addEventListener('click', function() {
+            const messageInput = document.getElementById('messageInput');
+            const usernameInput = document.getElementById('username');
+            const encodingType = document.getElementById('encodingType').value;
+            
+            const message = messageInput.value.trim();
+            username = usernameInput.value.trim() || 'Người dùng';
+            
+            if (message) {
+                // Gửi tin nhắn lên Firebase
+                sendMessage(message, encodingType);
+                
+                // Hiển thị tin nhắn ngay lập tức
+                addMessage(username + ' (Bạn)', message, encodingType, 'own');
+                
+                // Xóa nội dung ô nhập
+                messageInput.value = '';
+            }
+        });
+        
+        // Xử lý sự kiện khi nhấn phím Enter trong ô nhập tin nhắn
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('sendButton').click();
+            }
+        });
+        
+        // Cập nhật thời gian hiện tại
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            document.getElementById('currentTime').textContent = timeString;
+        }
+        
+        // Cập nhật thời gian mỗi phút
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 60000);
+        
+        // Khởi tạo ứng dụng
+        initializeApp();
+    </script>
+</body>
+</html>
