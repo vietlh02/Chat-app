@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Nhóm Hội ngựa què</title>
+    <title>Chat Nhóm với Mã Nhị Phân</title>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -79,60 +79,83 @@
             padding: 20px;
             overflow-y: auto;
             background-color: rgba(10, 10, 20, 0.8);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
         
         .message {
-            margin-bottom: 15px;
+            max-width: 80%;
             padding: 12px 15px;
-            border-radius: 10px;
-            background-color: rgba(30, 30, 60, 0.8);
-            border-left: 4px solid #00ffcc;
+            border-radius: 15px;
             animation: fadeIn 0.3s ease;
+            position: relative;
         }
         
-        .message.system {
-            border-left-color: #ff9900;
-            background-color: rgba(60, 30, 10, 0.8);
+        /* Tin nhắn người khác - bên trái */
+        .message.other {
+            align-self: flex-start;
+            background: linear-gradient(135deg, #2a3a7c, #3a4a8c);
+            border-bottom-left-radius: 5px;
+            border: 1px solid #00ffcc;
         }
         
+        /* Tin nhắn của tôi - bên phải */
         .message.own {
-            border-left-color: #00ccff;
-            background-color: rgba(10, 30, 60, 0.8);
+            align-self: flex-end;
+            background: linear-gradient(135deg, #0066cc, #0088ff);
+            border-bottom-right-radius: 5px;
+            border: 1px solid #00ccff;
+        }
+        
+        /* Tin nhắn hệ thống - căn giữa */
+        .message.system {
+            align-self: center;
+            max-width: 90%;
+            background: rgba(255, 153, 0, 0.3);
+            border: 1px solid #ff9900;
+            text-align: center;
         }
         
         .message-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 0.85rem;
+            margin-bottom: 8px;
+            font-size: 0.8rem;
         }
         
         .message-user {
             font-weight: bold;
+        }
+        
+        /* Màu username cho tin nhắn người khác */
+        .message.other .message-user {
             color: #00ffcc;
+        }
+        
+        /* Màu username cho tin nhắn của tôi */
+        .message.own .message-user {
+            color: #00ccff;
         }
         
         .message.system .message-user {
             color: #ff9900;
         }
         
-        .message.own .message-user {
-            color: #00ccff;
-        }
-        
         .message-time {
-            color: #888;
+            color: #ccc;
+            font-size: 0.75rem;
         }
         
         .message-binary {
             font-family: 'Courier New', monospace;
             word-break: break-all;
             background-color: rgba(0, 0, 0, 0.3);
-            padding: 8px;
-            border-radius: 5px;
-            margin-top: 5px;
-            font-size: 0.9rem;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
             line-height: 1.4;
+            margin-bottom: 8px;
         }
         
         .message-actions {
@@ -145,10 +168,10 @@
         .translate-btn {
             padding: 6px 12px;
             border: none;
-            border-radius: 4px;
+            border-radius: 20px;
             background-color: #ff9900;
             color: #000;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -161,9 +184,9 @@
         
         .message-text {
             margin-top: 8px;
-            padding: 8px;
+            padding: 10px;
             background-color: rgba(0, 0, 0, 0.4);
-            border-radius: 5px;
+            border-radius: 8px;
             border-left: 3px solid #ff9900;
             font-style: italic;
             color: #ffcc00;
@@ -177,7 +200,7 @@
         }
         
         .binary-details {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: #aaa;
         }
         
@@ -264,13 +287,30 @@
         }
         
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { 
+                opacity: 0; 
+                transform: translateY(20px) scale(0.95); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
         }
         
         @keyframes slideDown {
             from { opacity: 0; max-height: 0; }
             to { opacity: 1; max-height: 100px; }
+        }
+        
+        /* Hiệu ứng đặc biệt cho tin nhắn mới */
+        .message.new-message {
+            animation: messagePop 0.5s ease;
+        }
+        
+        @keyframes messagePop {
+            0% { transform: scale(0.8); opacity: 0; }
+            70% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
         }
         
         /* Responsive design */
@@ -295,6 +335,10 @@
                 margin-left: 0;
             }
             
+            .message {
+                max-width: 90%;
+            }
+            
             .message-actions {
                 flex-direction: column;
                 align-items: flex-start;
@@ -306,7 +350,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Hội ngựa què</h1>
+            <h1>Chat Nhóm với Mã Nhị Phân</h1>
             <p class="subtitle">Kết nối và trò chuyện với mọi người - Tin nhắn được hiển thị dưới dạng mã nhị phân</p>
             <div class="status" id="connectionStatus">Đang kết nối đến Firebase...</div>
         </header>
@@ -338,9 +382,10 @@
         
         <div class="info-box">
             <h3>Hướng dẫn sử dụng</h3>
-            <p>• Tin nhắn được tự động chuyển thành mã nhị phân</p>
-            <p>• Nhấn nút <strong>"Dịch"</strong> để xem nội dung gốc của từng tin nhắn</p>
-            <p>• Chọn mã hóa ASCII (7-bit) hoặc UTF-8 (8-bit) trước khi gửi</p>
+            <p>• 💬 <strong style="color: #00ccff;">Tin nhắn của bạn</strong> - Hiển thị bên phải (màu xanh)</p>
+            <p>• 💬 <strong style="color: #00ffcc;">Tin nhắn người khác</strong> - Hiển thị bên trái (màu xanh lá)</p>
+            <p>• 📢 <strong style="color: #ff9900;">Tin nhắn hệ thống</strong> - Hiển thị ở giữa</p>
+            <p>• 🔍 Nhấn nút <strong>"Dịch"</strong> để xem nội dung gốc</p>
         </div>
     </div>
 
@@ -411,8 +456,8 @@
             }
         }
         
-        // Hàm thêm tin nhắn với nút dịch
-        function addMessage(user, message, encoding, messageType = 'normal', timestamp = null, messageId = null) {
+        // Hàm thêm tin nhắn với vị trí trái/phải
+        function addMessage(user, message, encoding, messageType = 'other', timestamp = null, messageId = null) {
             if (messageId && loadedMessageIds.has(messageId)) return;
             if (messageId) loadedMessageIds.add(messageId);
             
@@ -420,8 +465,16 @@
             const messageElement = document.createElement('div');
             
             let messageClass = 'message';
-            if (messageType === 'system') messageClass += ' system';
-            else if (messageType === 'own') messageClass += ' own';
+            if (messageType === 'system') {
+                messageClass += ' system';
+            } else if (messageType === 'own') {
+                messageClass += ' own';
+            } else {
+                messageClass += ' other';
+            }
+            
+            // Thêm class new-message để hiệu ứng
+            messageClass += ' new-message';
             
             const timeString = timestamp ? new Date(timestamp).toLocaleTimeString('vi-VN') : new Date().toLocaleTimeString('vi-VN');
             const binaryMessage = encoding === 'ascii' ? textToAsciiBinary(message) : textToUtf8Binary(message);
@@ -442,6 +495,11 @@
             
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Xóa hiệu ứng sau 0.5s
+            setTimeout(() => {
+                messageElement.classList.remove('new-message');
+            }, 500);
             
             // Ẩn loading message nếu có tin nhắn thật
             if (messageType !== 'system') {
@@ -464,9 +522,9 @@
                 timestamp: Date.now()
             };
             
-            // HIỂN THỊ TIN NHẮN NGAY LẬP TỨC
+            // HIỂN THỊ TIN NHẮN NGAY LẬP TỨC (bên phải)
             const tempMessageId = 'temp_' + Date.now();
-            addMessage(username + ' (Bạn)', message, encoding, 'own', Date.now(), tempMessageId);
+            addMessage('Bạn', message, encoding, 'own', Date.now(), tempMessageId);
             
             // Gửi lên Firebase
             database.ref('messages').push(messageData)
@@ -507,10 +565,10 @@
                         messages.forEach(message => {
                             const isOwnMessage = message.userId === userId;
                             addMessage(
-                                isOwnMessage ? message.username + ' (Bạn)' : message.username,
+                                isOwnMessage ? 'Bạn' : message.username,
                                 message.message,
                                 message.encoding || 'utf8',
-                                isOwnMessage ? 'own' : 'normal',
+                                isOwnMessage ? 'own' : 'other',
                                 message.timestamp,
                                 message.id
                             );
@@ -545,7 +603,7 @@
                             messageData.username,
                             messageData.message,
                             messageData.encoding || 'utf8',
-                            'normal',
+                            'other',
                             messageData.timestamp,
                             snapshot.key
                         );
