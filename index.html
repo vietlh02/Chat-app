@@ -4,35 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Nhóm với Mã Nhị Phân</title>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-        import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-analytics.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBb2p8I5RRcLdTxb-UlKbXFDMDvSNBFYJo",
-            authDomain: "chat-app-8b048.firebaseapp.com",
-            projectId: "chat-app-8b048",
-            storageBucket: "chat-app-8b048.firebasestorage.app",
-            messagingSenderId: "222525270808",
-            appId: "1:222525270808:web:400e8cbe23f85967728c6d",
-            measurementId: "G-SJKPRW4JW8"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-        const analytics = getAnalytics(app);
-
-        // Make Firebase available globally
-        window.firebase = {
-            database: database,
-            ref: ref,
-            push: push,
-            onChildAdded: onChildAdded,
-            serverTimestamp: serverTimestamp
-        };
-    </script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -82,6 +58,14 @@
             border-radius: 5px;
             background-color: rgba(0, 255, 204, 0.2);
             display: inline-block;
+        }
+        
+        .status.connected {
+            background-color: rgba(0, 255, 0, 0.2);
+        }
+        
+        .status.error {
+            background-color: rgba(255, 0, 0, 0.2);
         }
         
         .chat-container {
@@ -240,23 +224,18 @@
             color: #aaa;
         }
         
-        .online-users {
-            background-color: rgba(0, 20, 40, 0.8);
-            padding: 10px 15px;
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #aaa;
+        }
+        
+        .config-help {
+            background-color: rgba(255, 100, 100, 0.2);
+            padding: 15px;
             border-radius: 10px;
-            margin-bottom: 15px;
-            border-left: 4px solid #00ffcc;
-        }
-        
-        .online-users h3 {
-            color: #00ffcc;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-        }
-        
-        .user-count {
-            color: #00ffcc;
-            font-weight: bold;
+            margin: 15px 0;
+            border-left: 4px solid #ff4444;
         }
         
         @keyframes fadeIn {
@@ -293,20 +272,12 @@
         <header>
             <h1>Chat Nhóm với Mã Nhị Phân</h1>
             <p class="subtitle">Kết nối và trò chuyện với mọi người - Tin nhắn được hiển thị dưới dạng mã nhị phân</p>
-            <div class="status" id="connectionStatus">Đang kết nối...</div>
+            <div class="status" id="connectionStatus">Đang kết nối đến Firebase...</div>
         </header>
         
         <div class="chat-container">
             <div class="chat-messages" id="chatMessages">
-                <!-- Tin nhắn sẽ được thêm vào đây bằng JavaScript -->
-                <div class="message system">
-                    <div class="message-header">
-                        <span class="message-user">Hệ thống</span>
-                        <span class="message-time" id="currentTime"></span>
-                    </div>
-                    <div class="message-binary">01010111 01100101 01101100 01100011 01101111 01101101 01100101 00100000 01110100 01101111 00100000 01000010 01101001 01101110 01100001 01110010 01111001 00100000 01000011 01101000 01100001 01110100</div>
-                    <div class="message-text">Chào mừng đến với Binary Chat! Đang kết nối...</div>
-                </div>
+                <div class="loading" id="loadingMessages">Đang khởi tạo ứng dụng...</div>
             </div>
             
             <div class="input-area">
@@ -322,7 +293,7 @@
                         <input type="text" id="username" placeholder="Tên của bạn..." value="Người dùng">
                     </div>
                     <div style="display: flex;">
-                        <input type="text" id="messageInput" placeholder="Nhập tin nhắn của bạn...">
+                        <input type="text" id="messageInput" placeholder="Nhập tin nhắn của bạn..." disabled>
                         <button id="sendButton" disabled>Gửi</button>
                     </div>
                 </div>
@@ -330,61 +301,85 @@
         </div>
         
         <div class="info-box">
-            <h3>Thông tin về mã hóa ASCII/UTF-8</h3>
-            <p><strong>ASCII (American Standard Code for Information Interchange)</strong>: Sử dụng 7 bit để biểu diễn 128 ký tự, bao gồm chữ cái, số và ký tự điều khiển.</p>
-            <p><strong>UTF-8 (Unicode Transformation Format - 8-bit)</strong>: Sử dụng từ 1 đến 4 byte (8-32 bit) để biểu diễn hơn 1 triệu ký tự, hỗ trợ hầu hết ngôn ngữ trên thế giới.</p>
-            <p>Trong ứng dụng này, bạn có thể chọn giữa mã hóa ASCII (7-bit) hoặc UTF-8 (8-bit) để chuyển đổi tin nhắn thành mã nhị phân.</p>
+            <h3>Thông tin kết nối</h3>
+            <p><strong>Database URL:</strong> <code id="dbUrl">https://chat-app-8b048-default-rtdb.asia-southeast1.firebasedatabase.app</code></p>
+            <p><strong>User ID:</strong> <code id="userIdDisplay">Đang tải...</code></p>
+            <p><strong>Trạng thái:</strong> <span id="statusText">Đang kết nối...</span></p>
         </div>
     </div>
 
     <script>
-        // Tạo ID người dùng ngẫu nhiên
-        const userId = 'user_' + Math.random().toString(36).substr(2, 9);
+        // Cấu hình Firebase của bạn - ĐÃ SỬA URL
+        const firebaseConfig = {
+            apiKey: "AIzaSyBb2p8I5RRcLdTxb-UlKbXFDMDvSNBFYJo",
+            authDomain: "chat-app-8b048.firebaseapp.com",
+            databaseURL: "https://chat-app-8b048-default-rtdb.asia-southeast1.firebasedatabase.app", // ĐÃ SỬA THÀNH firebasedatabase
+            projectId: "chat-app-8b048",
+            storageBucket: "chat-app-8b048.firebasestorage.app",
+            messagingSenderId: "222525270808",
+            appId: "1:222525270808:web:400e8cbe23f85967728c6d",
+            measurementId: "G-SJKPRW4JW8"
+        };
+
+        // Hiển thị thông tin kết nối
+        document.getElementById('dbUrl').textContent = firebaseConfig.databaseURL;
+
+        // Khởi tạo Firebase
+        let database;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+            console.log("Firebase initialized successfully");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            document.getElementById('connectionStatus').textContent = 'Lỗi khởi tạo Firebase: ' + error.message;
+            document.getElementById('connectionStatus').classList.add('error');
+        }
+
+        // Biến toàn cục
+        let userId = localStorage.getItem('chatUserId') || 'user_' + Math.random().toString(36).substr(2, 9);
         let username = 'Người dùng';
         let isConnected = false;
+        let loadedMessageIds = new Set();
 
-        // Hàm chuyển đổi văn bản thành mã nhị phân ASCII
+        // Lưu userId và hiển thị
+        localStorage.setItem('chatUserId', userId);
+        document.getElementById('userIdDisplay').textContent = userId;
+
+        // Hàm chuyển đổi sang mã nhị phân
         function textToAsciiBinary(text) {
             return text.split('').map(char => {
                 const asciiCode = char.charCodeAt(0);
-                // ASCII chỉ sử dụng 7 bit, nhưng chúng ta hiển thị dưới dạng 8 bit
                 const binary = asciiCode.toString(2);
                 return '0'.repeat(8 - binary.length) + binary;
             }).join(' ');
         }
         
-        // Hàm chuyển đổi văn bản thành mã nhị phân UTF-8
         function textToUtf8Binary(text) {
             const encoder = new TextEncoder();
             const bytes = encoder.encode(text);
-            
             return Array.from(bytes).map(byte => {
                 const binary = byte.toString(2);
                 return '0'.repeat(8 - binary.length) + binary;
             }).join(' ');
         }
         
-        // Hàm thêm tin nhắn vào khung chat
-        function addMessage(user, message, encoding, messageType = 'normal') {
+        // Hàm thêm tin nhắn
+        function addMessage(user, message, encoding, messageType = 'normal', timestamp = null, messageId = null) {
+            if (messageId && loadedMessageIds.has(messageId)) return;
+            if (messageId) loadedMessageIds.add(messageId);
+            
             const chatMessages = document.getElementById('chatMessages');
             const messageElement = document.createElement('div');
             
             let messageClass = 'message';
-            if (messageType === 'system') {
-                messageClass += ' system';
-            } else if (messageType === 'own') {
-                messageClass += ' own';
-            }
+            if (messageType === 'system') messageClass += ' system';
+            else if (messageType === 'own') messageClass += ' own';
+            
+            const timeString = timestamp ? new Date(timestamp).toLocaleTimeString('vi-VN') : new Date().toLocaleTimeString('vi-VN');
+            const binaryMessage = encoding === 'ascii' ? textToAsciiBinary(message) : textToUtf8Binary(message);
             
             messageElement.className = messageClass;
-            
-            const now = new Date();
-            const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-            
-            const binaryMessage = encoding === 'ascii' 
-                ? textToAsciiBinary(message) 
-                : textToUtf8Binary(message);
-            
             messageElement.innerHTML = `
                 <div class="message-header">
                     <span class="message-user">${user}</span>
@@ -397,12 +392,17 @@
             
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Ẩn loading message nếu có tin nhắn thật
+            if (messageType !== 'system') {
+                document.getElementById('loadingMessages').style.display = 'none';
+            }
         }
         
-        // Hàm gửi tin nhắn lên Firebase
+        // Hàm gửi tin nhắn
         function sendMessage(message, encoding) {
-            if (!window.firebase || !isConnected) {
-                addMessage('Hệ thống', 'Chưa kết nối đến server. Vui lòng thử lại.', 'utf8', 'system');
+            if (!isConnected) {
+                addMessage('Hệ thống', 'Chưa kết nối đến server', 'utf8', 'system');
                 return;
             }
             
@@ -411,55 +411,111 @@
                 username: username,
                 message: message,
                 encoding: encoding,
-                timestamp: window.firebase.serverTimestamp()
+                timestamp: Date.now()
             };
             
-            window.firebase.push(window.firebase.ref(window.firebase.database, 'messages'), messageData)
+            database.ref('messages').push(messageData)
                 .catch(error => {
-                    console.error('Lỗi gửi tin nhắn:', error);
                     addMessage('Hệ thống', 'Lỗi gửi tin nhắn: ' + error.message, 'utf8', 'system');
                 });
         }
         
-        // Khởi tạo ứng dụng khi Firebase đã sẵn sàng
-        function initializeApp() {
-            // Kiểm tra Firebase đã sẵn sàng chưa
-            const checkFirebase = setInterval(() => {
-                if (window.firebase && window.firebase.database) {
-                    clearInterval(checkFirebase);
-                    setupFirebase();
-                }
-            }, 100);
+        // Tải lịch sử tin nhắn
+        function loadMessageHistory() {
+            database.ref('messages').orderByKey().limitToLast(50).once('value')
+                .then(snapshot => {
+                    const messages = [];
+                    snapshot.forEach(childSnapshot => {
+                        const messageData = childSnapshot.val();
+                        messages.push({
+                            id: childSnapshot.key,
+                            ...messageData
+                        });
+                    });
+                    
+                    // Sắp xếp theo thời gian
+                    messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                    
+                    // Hiển thị tin nhắn
+                    if (messages.length > 0) {
+                        messages.forEach(message => {
+                            const isOwnMessage = message.userId === userId;
+                            addMessage(
+                                isOwnMessage ? message.username + ' (Bạn)' : message.username,
+                                message.message,
+                                message.encoding || 'utf8',
+                                isOwnMessage ? 'own' : 'normal',
+                                message.timestamp,
+                                message.id
+                            );
+                        });
+                        document.getElementById('loadingMessages').style.display = 'none';
+                    } else {
+                        document.getElementById('loadingMessages').innerHTML = 'Chưa có tin nhắn nào. Hãy là người đầu tiên!';
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi tải tin nhắn:', error);
+                    document.getElementById('loadingMessages').innerHTML = 'Lỗi kết nối database. Kiểm tra cấu hình Firebase.';
+                    document.getElementById('statusText').textContent = 'Lỗi: ' + error.message;
+                });
         }
         
-        // Thiết lập Firebase
-        function setupFirebase() {
-            const messagesRef = window.firebase.ref(window.firebase.database, 'messages');
+        // Khởi tạo ứng dụng
+        function initializeApp() {
+            if (!firebase.apps.length) {
+                document.getElementById('connectionStatus').textContent = 'Firebase chưa được khởi tạo';
+                return;
+            }
             
-            // Lắng nghe tin nhắn mới từ Firebase
-            window.firebase.onChildAdded(messagesRef, (snapshot) => {
-                const messageData = snapshot.val();
-                
-                if (messageData && messageData.username && messageData.message) {
-                    // Chỉ hiển thị tin nhắn nếu không phải là tin nhắn của chính mình
-                    // (để tránh hiển thị trùng lặp)
-                    if (messageData.userId !== userId) {
-                        addMessage(messageData.username, messageData.message, messageData.encoding || 'utf8');
-                    }
+            // Kiểm tra kết nối Firebase
+            const connectedRef = database.ref(".info/connected");
+            connectedRef.on("value", function(snap) {
+                if (snap.val() === true) {
+                    isConnected = true;
+                    document.getElementById('connectionStatus').textContent = '✅ Đã kết nối Firebase';
+                    document.getElementById('connectionStatus').classList.add('connected');
+                    document.getElementById('sendButton').disabled = false;
+                    document.getElementById('messageInput').disabled = false;
+                    document.getElementById('statusText').textContent = 'Đã kết nối';
+                    
+                    // Tải tin nhắn khi kết nối thành công
+                    loadMessageHistory();
+                    
+                    // Lắng nghe tin nhắn mới
+                    database.ref('messages').limitToLast(1).on('child_added', (snapshot) => {
+                        const messageData = snapshot.val();
+                        if (messageData && !loadedMessageIds.has(snapshot.key)) {
+                            const isOwnMessage = messageData.userId === userId;
+                            if (!isOwnMessage) {
+                                addMessage(
+                                    messageData.username,
+                                    messageData.message,
+                                    messageData.encoding || 'utf8',
+                                    'normal',
+                                    messageData.timestamp,
+                                    snapshot.key
+                                );
+                            }
+                        }
+                    });
+                } else {
+                    isConnected = false;
+                    document.getElementById('connectionStatus').textContent = '❌ Mất kết nối Firebase';
+                    document.getElementById('connectionStatus').classList.remove('connected');
+                    document.getElementById('sendButton').disabled = true;
+                    document.getElementById('statusText').textContent = 'Mất kết nối';
                 }
             });
-            
-            // Cập nhật trạng thái kết nối
-            isConnected = true;
-            document.getElementById('connectionStatus').textContent = 'Đã kết nối';
-            document.getElementById('connectionStatus').style.backgroundColor = 'rgba(0, 255, 0, 0.2)';
-            document.getElementById('sendButton').disabled = false;
-            
-            addMessage('Hệ thống', 'Kết nối thành công! Bạn có thể bắt đầu trò chuyện.', 'utf8', 'system');
         }
         
-        // Xử lý sự kiện khi nhấn nút gửi
-        document.getElementById('sendButton').addEventListener('click', function() {
+        // Sự kiện gửi tin nhắn
+        document.getElementById('sendButton').addEventListener('click', sendMessageHandler);
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessageHandler();
+        });
+        
+        function sendMessageHandler() {
             const messageInput = document.getElementById('messageInput');
             const usernameInput = document.getElementById('username');
             const encodingType = document.getElementById('encodingType').value;
@@ -468,37 +524,22 @@
             username = usernameInput.value.trim() || 'Người dùng';
             
             if (message) {
-                // Gửi tin nhắn lên Firebase
                 sendMessage(message, encodingType);
-                
-                // Hiển thị tin nhắn ngay lập tức
-                addMessage(username + ' (Bạn)', message, encodingType, 'own');
-                
-                // Xóa nội dung ô nhập
                 messageInput.value = '';
             }
-        });
-        
-        // Xử lý sự kiện khi nhấn phím Enter trong ô nhập tin nhắn
-        document.getElementById('messageInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                document.getElementById('sendButton').click();
-            }
-        });
-        
-        // Cập nhật thời gian hiện tại
-        function updateCurrentTime() {
-            const now = new Date();
-            const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-            document.getElementById('currentTime').textContent = timeString;
         }
         
-        // Cập nhật thời gian mỗi phút
-        updateCurrentTime();
-        setInterval(updateCurrentTime, 60000);
-        
-        // Khởi tạo ứng dụng
-        initializeApp();
+        // Bắt đầu ứng dụng
+        document.addEventListener('DOMContentLoaded', function() {
+            if (firebase.apps.length) {
+                initializeApp();
+                addMessage('Hệ thống', 'Ứng dụng đang khởi động...', 'utf8', 'system');
+            } else {
+                document.getElementById('connectionStatus').textContent = '❌ Lỗi: Firebase không khởi tạo được';
+                document.getElementById('connectionStatus').classList.add('error');
+                document.getElementById('statusText').textContent = 'Lỗi khởi tạo Firebase';
+            }
+        });
     </script>
 </body>
 </html>
