@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Nhóm với Mã Nhị Phân</title>
+    <title>Hội Ngựa què</title>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -68,6 +68,12 @@
             background-color: rgba(255, 0, 0, 0.2);
         }
         
+        .user-identity {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+        
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -128,12 +134,10 @@
             font-weight: bold;
         }
         
-        /* Màu username cho tin nhắn người khác */
         .message.other .message-user {
             color: #00ffcc;
         }
         
-        /* Màu username cho tin nhắn của tôi */
         .message.own .message-user {
             color: #00ccff;
         }
@@ -147,6 +151,12 @@
             font-size: 0.75rem;
         }
         
+        .user-fingerprint {
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 2px;
+        }
+        
         .message-binary {
             font-family: 'Courier New', monospace;
             word-break: break-all;
@@ -156,6 +166,30 @@
             font-size: 0.85rem;
             line-height: 1.4;
             margin-bottom: 8px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .message-binary.holding {
+            background-color: rgba(255, 153, 0, 0.3);
+            transform: scale(1.02);
+            box-shadow: 0 0 10px rgba(255, 153, 0, 0.5);
+        }
+        
+        .hold-indicator {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.7rem;
+            color: #ff9900;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .message-binary:hover .hold-indicator {
+            opacity: 1;
         }
         
         .message-actions {
@@ -163,23 +197,6 @@
             justify-content: space-between;
             align-items: center;
             margin-top: 8px;
-        }
-        
-        .translate-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 20px;
-            background-color: #ff9900;
-            color: #000;
-            font-size: 0.75rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .translate-btn:hover {
-            background-color: #ffaa33;
-            transform: translateY(-1px);
         }
         
         .message-text {
@@ -192,6 +209,7 @@
             color: #ffcc00;
             font-size: 0.9rem;
             display: none;
+            transition: all 0.3s ease;
         }
         
         .message-text.show {
@@ -302,7 +320,6 @@
             to { opacity: 1; max-height: 100px; }
         }
         
-        /* Hiệu ứng đặc biệt cho tin nhắn mới */
         .message.new-message {
             animation: messagePop 0.5s ease;
         }
@@ -353,6 +370,7 @@
             <h1>Chat Nhóm với Mã Nhị Phân</h1>
             <p class="subtitle">Kết nối và trò chuyện với mọi người - Tin nhắn được hiển thị dưới dạng mã nhị phân</p>
             <div class="status" id="connectionStatus">Đang kết nối đến Firebase...</div>
+            <div class="user-identity" id="userIdentity">Đang nhận diện người dùng...</div>
         </header>
         
         <div class="chat-container">
@@ -370,7 +388,7 @@
                         </select>
                     </div>
                     <div class="user-info">
-                        <input type="text" id="username" placeholder="Tên của bạn..." value="Người dùng">
+                        <input type="text" id="username" placeholder="Tên hiển thị của bạn...">
                     </div>
                     <div style="display: flex;">
                         <input type="text" id="messageInput" placeholder="Nhập tin nhắn của bạn..." disabled>
@@ -382,10 +400,10 @@
         
         <div class="info-box">
             <h3>Hướng dẫn sử dụng</h3>
-            <p>• 💬 <strong style="color: #00ccff;">Tin nhắn của bạn</strong> - Hiển thị bên phải (màu xanh)</p>
-            <p>• 💬 <strong style="color: #00ffcc;">Tin nhắn người khác</strong> - Hiển thị bên trái (màu xanh lá)</p>
-            <p>• 📢 <strong style="color: #ff9900;">Tin nhắn hệ thống</strong> - Hiển thị ở giữa</p>
-            <p>• 🔍 Nhấn nút <strong>"Dịch"</strong> để xem nội dung gốc</p>
+            <p>• 👤 <strong>Tên tự động</strong>: Hệ thống nhớ tên của bạn khi quay lại</p>
+            <p>• 🔍 <strong>Dịch tin nhắn</strong>: Nhấn giữ vào mã nhị phân để xem nội dung gốc (giữ cho đến khi muốn xem)</p>
+            <p>• 💬 <strong>Tin nhắn của bạn</strong> - Hiển thị bên phải (màu xanh)</p>
+            <p>• 💬 <strong>Tin nhắn người khác</strong> - Hiển thị bên trái (màu xanh lá)</p>
         </div>
     </div>
 
@@ -414,15 +432,50 @@
             document.getElementById('connectionStatus').classList.add('error');
         }
 
+        // Hàm tạo fingerprint cho người dùng
+        function generateUserFingerprint() {
+            const components = [
+                navigator.userAgent,
+                navigator.language,
+                navigator.hardwareConcurrency || 'unknown',
+                screen.width + 'x' + screen.height,
+                screen.colorDepth + 'bit',
+                new Date().getTimezoneOffset(),
+                !!navigator.cookieEnabled,
+                !!navigator.javaEnabled()
+            ];
+            
+            let fingerprint = '';
+            for (let component of components) {
+                let hash = 0;
+                for (let i = 0; i < component.length; i++) {
+                    const char = component.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                fingerprint += Math.abs(hash).toString(36).substr(0, 4);
+            }
+            
+            return 'user_' + fingerprint;
+        }
+
         // Biến toàn cục
-        let userId = localStorage.getItem('chatUserId') || 'user_' + Math.random().toString(36).substr(2, 9);
-        let username = 'Người dùng';
+        let userFingerprint = localStorage.getItem('userFingerprint') || generateUserFingerprint();
+        let username = localStorage.getItem('chatUsername') || 'Người dùng';
         let isConnected = false;
         let loadedMessageIds = new Set();
         let lastMessageKey = null;
 
-        // Lưu userId
-        localStorage.setItem('chatUserId', userId);
+        // Lưu thông tin người dùng
+        localStorage.setItem('userFingerprint', userFingerprint);
+        localStorage.setItem('chatUsername', username);
+
+        // Hiển thị thông tin người dùng
+        document.getElementById('userIdentity').innerHTML = 
+            `👤 <strong>${username}</strong> | 🆔 <code>${userFingerprint}</code>`;
+
+        // Đặt username vào input
+        document.getElementById('username').value = username;
 
         // Hàm chuyển đổi sang mã nhị phân
         function textToAsciiBinary(text) {
@@ -442,22 +495,47 @@
             }).join(' ');
         }
         
-        // Hàm hiển thị/ẩn bản dịch
-        function toggleTranslation(button) {
-            const messageText = button.parentElement.nextElementSibling;
-            const isShowing = messageText.classList.contains('show');
+        // Hàm xử lý nhấn giữ để dịch - ĐÃ SỬA
+        function setupHoldToTranslate(element, messageText) {
+            let holdTimer;
+            let isHolding = false;
             
-            if (isShowing) {
+            element.addEventListener('mousedown', startHold);
+            element.addEventListener('touchstart', startHold);
+            
+            element.addEventListener('mouseup', endHold);
+            element.addEventListener('touchend', endHold);
+            element.addEventListener('mouseleave', endHold);
+            element.addEventListener('touchcancel', endHold);
+            
+            function startHold(e) {
+                e.preventDefault();
+                if (isHolding) return;
+                
+                isHolding = true;
+                element.classList.add('holding');
+                
+                holdTimer = setTimeout(() => {
+                    // Hiển thị bản dịch sau 0.5 giây nhấn giữ
+                    messageText.classList.add('show');
+                }, 500);
+            }
+            
+            function endHold() {
+                if (holdTimer) {
+                    clearTimeout(holdTimer);
+                    holdTimer = null;
+                }
+                
+                // ẨN BẢN DỊCH KHI BỎ GIỮ - ĐÃ SỬA
                 messageText.classList.remove('show');
-                button.textContent = '🔍 Dịch tin nhắn';
-            } else {
-                messageText.classList.add('show');
-                button.textContent = '⬆️ Ẩn bản dịch';
+                isHolding = false;
+                element.classList.remove('holding');
             }
         }
         
-        // Hàm thêm tin nhắn với vị trí trái/phải
-        function addMessage(user, message, encoding, messageType = 'other', timestamp = null, messageId = null) {
+        // Hàm thêm tin nhắn với fingerprint
+        function addMessage(user, message, encoding, messageType = 'other', timestamp = null, messageId = null, fingerprint = null) {
             if (messageId && loadedMessageIds.has(messageId)) return;
             if (messageId) loadedMessageIds.add(messageId);
             
@@ -473,11 +551,13 @@
                 messageClass += ' other';
             }
             
-            // Thêm class new-message để hiệu ứng
             messageClass += ' new-message';
             
             const timeString = timestamp ? new Date(timestamp).toLocaleTimeString('vi-VN') : new Date().toLocaleTimeString('vi-VN');
             const binaryMessage = encoding === 'ascii' ? textToAsciiBinary(message) : textToUtf8Binary(message);
+            
+            const fingerprintDisplay = fingerprint && messageType === 'other' ? 
+                `<div class="user-fingerprint">ID: ${fingerprint.substr(0, 8)}...</div>` : '';
             
             messageElement.className = messageClass;
             messageElement.innerHTML = `
@@ -485,9 +565,12 @@
                     <span class="message-user">${user}</span>
                     <span class="message-time">${timeString}</span>
                 </div>
-                <div class="message-binary">${binaryMessage}</div>
+                ${fingerprintDisplay}
+                <div class="message-binary">
+                    ${binaryMessage}
+                    <div class="hold-indicator">⏳ Nhấn giữ để dịch</div>
+                </div>
                 <div class="message-actions">
-                    <button class="translate-btn" onclick="toggleTranslation(this)">🔍 Dịch tin nhắn</button>
                     <div class="binary-details">Mã hóa: ${encoding === 'ascii' ? 'ASCII (7-bit)' : 'UTF-8 (8-bit)'}</div>
                 </div>
                 <div class="message-text">${message}</div>
@@ -496,18 +579,21 @@
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
             
-            // Xóa hiệu ứng sau 0.5s
+            // Thiết lập nhấn giữ cho mã nhị phân
+            const binaryElement = messageElement.querySelector('.message-binary');
+            const textElement = messageElement.querySelector('.message-text');
+            setupHoldToTranslate(binaryElement, textElement);
+            
             setTimeout(() => {
                 messageElement.classList.remove('new-message');
             }, 500);
             
-            // Ẩn loading message nếu có tin nhắn thật
             if (messageType !== 'system') {
                 document.getElementById('loadingMessages').style.display = 'none';
             }
         }
         
-        // Hàm gửi tin nhắn
+        // Hàm gửi tin nhắn với fingerprint
         function sendMessage(message, encoding) {
             if (!isConnected) {
                 addMessage('Hệ thống', 'Chưa kết nối đến server', 'utf8', 'system');
@@ -515,14 +601,15 @@
             }
             
             const messageData = {
-                userId: userId,
+                userFingerprint: userFingerprint,
                 username: username,
                 message: message,
                 encoding: encoding,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                userAgent: navigator.userAgent.substr(0, 50)
             };
             
-            // HIỂN THỊ TIN NHẮN NGAY LẬP TỨC (bên phải)
+            // HIỂN THỊ TIN NHẮN NGAY LẬP TỨC
             const tempMessageId = 'temp_' + Date.now();
             addMessage('Bạn', message, encoding, 'own', Date.now(), tempMessageId);
             
@@ -563,14 +650,15 @@
                     // Hiển thị tin nhắn
                     if (messages.length > 0) {
                         messages.forEach(message => {
-                            const isOwnMessage = message.userId === userId;
+                            const isOwnMessage = message.userFingerprint === userFingerprint;
                             addMessage(
                                 isOwnMessage ? 'Bạn' : message.username,
                                 message.message,
                                 message.encoding || 'utf8',
                                 isOwnMessage ? 'own' : 'other',
                                 message.timestamp,
-                                message.id
+                                message.id,
+                                message.userFingerprint
                             );
                         });
                         document.getElementById('loadingMessages').style.display = 'none';
@@ -596,7 +684,7 @@
                 console.log('Nhận tin nhắn mới:', messageData);
                 
                 if (messageData && !loadedMessageIds.has(snapshot.key)) {
-                    const isOwnMessage = messageData.userId === userId;
+                    const isOwnMessage = messageData.userFingerprint === userFingerprint;
                     
                     if (!isOwnMessage) {
                         addMessage(
@@ -605,7 +693,8 @@
                             messageData.encoding || 'utf8',
                             'other',
                             messageData.timestamp,
-                            snapshot.key
+                            snapshot.key,
+                            messageData.userFingerprint
                         );
                     }
                     
@@ -649,13 +738,19 @@
             if (e.key === 'Enter') sendMessageHandler();
         });
         
+        // Cập nhật username khi người dùng thay đổi
+        document.getElementById('username').addEventListener('input', function(e) {
+            username = e.target.value.trim() || 'Người dùng';
+            localStorage.setItem('chatUsername', username);
+            document.getElementById('userIdentity').innerHTML = 
+                `👤 <strong>${username}</strong> | 🆔 <code>${userFingerprint}</code>`;
+        });
+        
         function sendMessageHandler() {
             const messageInput = document.getElementById('messageInput');
-            const usernameInput = document.getElementById('username');
             const encodingType = document.getElementById('encodingType').value;
             
             const message = messageInput.value.trim();
-            username = usernameInput.value.trim() || 'Người dùng';
             
             if (message) {
                 sendMessage(message, encodingType);
@@ -668,7 +763,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             if (firebase.apps.length) {
                 initializeApp();
-                addMessage('Hệ thống', 'Ứng dụng đang khởi động...', 'utf8', 'system');
+                addMessage('Hệ thống', `Chào mừng trở lại ${username}!`, 'utf8', 'system');
             } else {
                 document.getElementById('connectionStatus').textContent = '❌ Lỗi: Firebase không khởi tạo được';
                 document.getElementById('connectionStatus').classList.add('error');
