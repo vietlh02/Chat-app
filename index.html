@@ -21,21 +21,21 @@
         }
         
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            color: #fff;
+            background-color: #f0f0f0;
+            color: #333;
             min-height: 100vh;
-            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
         
         /* Login Screen */
         .login-container {
-            background: rgba(0, 0, 0, 0.8);
+            background: white;
             padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
             text-align: center;
@@ -44,12 +44,12 @@
         .login-title {
             font-size: 2rem;
             margin-bottom: 10px;
-            color: #00ffcc;
-            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+            color: #0068FF;
+            font-weight: bold;
         }
         
         .login-subtitle {
-            color: #aaa;
+            color: #666;
             margin-bottom: 30px;
         }
         
@@ -66,38 +66,37 @@
         .form-label {
             display: block;
             margin-bottom: 8px;
-            color: #00ffcc;
-            font-weight: bold;
+            color: #333;
+            font-weight: 500;
         }
         
         .form-input {
             width: 100%;
             padding: 12px 15px;
-            border: none;
-            border-radius: 5px;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+            color: #333;
             font-size: 1rem;
-            border: 2px solid transparent;
             transition: all 0.3s ease;
         }
         
         .form-input:focus {
             outline: none;
-            border-color: #00ffcc;
-            background-color: rgba(255, 255, 255, 0.15);
+            border-color: #0068FF;
+            box-shadow: 0 0 0 2px rgba(0, 104, 255, 0.2);
         }
         
         .form-input::placeholder {
-            color: #888;
+            color: #999;
         }
         
         .login-btn {
             padding: 12px;
             border: none;
-            border-radius: 5px;
-            background: linear-gradient(135deg, #00ffcc, #00ccff);
-            color: #000;
+            border-radius: 8px;
+            background: #0068FF;
+            color: white;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -105,28 +104,25 @@
         }
         
         .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 255, 204, 0.4);
+            background: #0055d4;
         }
         
         .login-btn:disabled {
-            background: #666;
+            background: #ccc;
             cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
         }
         
         .login-error {
-            color: #ff4444;
-            background: rgba(255, 68, 68, 0.1);
+            color: #ff3b30;
+            background: rgba(255, 59, 48, 0.05);
             padding: 10px;
-            border-radius: 5px;
-            border-left: 3px solid #ff4444;
+            border-radius: 8px;
+            border-left: 3px solid #ff3b30;
             display: none;
         }
         
         .login-info {
-            color: #aaa;
+            color: #666;
             font-size: 0.9rem;
             margin-top: 20px;
             line-height: 1.4;
@@ -134,40 +130,47 @@
         
         /* Main App */
         .container {
+            width: 100%;
             max-width: 900px;
+            height: 90vh;
             margin: 0 auto;
-            background-color: rgba(0, 0, 0, 0.7);
-            border-radius: 15px;
+            background-color: white;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             display: none;
         }
         
         header {
-            background-color: rgba(0, 0, 0, 0.8);
-            padding: 20px;
-            text-align: center;
-            border-bottom: 2px solid #00ffcc;
+            background-color: #0068FF;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
         }
         
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-            color: #00ffcc;
-            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
-        .subtitle {
-            font-size: 1rem;
-            color: #aaa;
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .header-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
         }
         
         .status {
-            margin-top: 10px;
-            padding: 8px;
-            border-radius: 5px;
-            background-color: rgba(0, 255, 204, 0.2);
-            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            background-color: rgba(255, 255, 255, 0.2);
+            font-size: 0.8rem;
         }
         
         .status.connected {
@@ -179,17 +182,15 @@
         }
         
         .user-identity {
-            margin-top: 10px;
-            font-size: 0.9rem;
-            color: #ccc;
+            font-size: 0.8rem;
+            opacity: 0.8;
         }
         
         .logout-btn {
-            margin-top: 10px;
             padding: 6px 12px;
             border: none;
-            border-radius: 3px;
-            background-color: #ff4444;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.2);
             color: white;
             font-size: 0.8rem;
             cursor: pointer;
@@ -197,60 +198,61 @@
         }
         
         .logout-btn:hover {
-            background-color: #ff6666;
+            background-color: rgba(255, 255, 255, 0.3);
         }
         
         .chat-container {
             display: flex;
             flex-direction: column;
-            height: 70vh;
+            height: calc(100% - 60px);
         }
         
         .chat-messages {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
-            background-color: rgba(10, 10, 20, 0.8);
+            background-color: #f7f7f7;
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
         
         .message {
-            max-width: 80%;
+            max-width: 70%;
             padding: 12px 15px;
-            border-radius: 15px;
+            border-radius: 18px;
             animation: fadeIn 0.3s ease;
             position: relative;
             transition: all 0.3s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
         
         .message.other {
             align-self: flex-start;
-            background: linear-gradient(135deg, #2a3a7c, #3a4a8c);
+            background: white;
             border-bottom-left-radius: 5px;
-            border: 1px solid #00ffcc;
         }
         
         .message.own {
             align-self: flex-end;
-            background: linear-gradient(135deg, #0066cc, #0088ff);
+            background: #e3f2fd;
             border-bottom-right-radius: 5px;
-            border: 1px solid #00ccff;
+            color: #0068FF;
         }
         
         .message.system {
             align-self: center;
             max-width: 90%;
-            background: rgba(255, 153, 0, 0.3);
-            border: 1px solid #ff9900;
+            background: #fff9e6;
+            border: 1px solid #ffcc00;
             text-align: center;
+            color: #996600;
         }
         
         .message-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
             font-size: 0.8rem;
         }
         
@@ -259,19 +261,19 @@
         }
         
         .message.other .message-user {
-            color: #00ffcc;
+            color: #333;
         }
         
         .message.own .message-user {
-            color: #00ccff;
+            color: #0068FF;
         }
         
         .message.system .message-user {
-            color: #ff9900;
+            color: #996600;
         }
         
         .message-time {
-            color: #ccc;
+            color: #999;
             font-size: 0.75rem;
         }
         
@@ -284,7 +286,7 @@
         .message-hash {
             font-family: 'Courier New', monospace;
             word-break: break-all;
-            background-color: rgba(0, 0, 0, 0.3);
+            background-color: rgba(0, 0, 0, 0.05);
             padding: 10px;
             border-radius: 8px;
             font-size: 0.8rem;
@@ -294,13 +296,11 @@
             user-select: none;
             transition: all 0.3s ease;
             position: relative;
-            color: #ffcc00;
+            color: #666;
         }
         
         .message-hash:hover {
-            background-color: rgba(255, 153, 0, 0.3);
-            transform: scale(1.02);
-            box-shadow: 0 0 10px rgba(255, 153, 0, 0.5);
+            background-color: rgba(0, 104, 255, 0.1);
         }
         
         .hover-indicator {
@@ -308,7 +308,7 @@
             top: 5px;
             right: 5px;
             font-size: 0.7rem;
-            color: #ff9900;
+            color: #0068FF;
             opacity: 0;
             transition: opacity 0.3s ease;
         }
@@ -318,7 +318,7 @@
         }
         
         .hash-prefix {
-            color: #00ffcc;
+            color: #0068FF;
             font-weight: bold;
             margin-right: 5px;
         }
@@ -331,13 +331,14 @@
         }
         
         .message-text {
-            margin-top: 8px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            word-break: break-word;
+            background-color: rgba(0, 104, 255, 0.1);
             padding: 10px;
-            background-color: rgba(0, 0, 0, 0.4);
             border-radius: 8px;
-            border-left: 3px solid #ff9900;
+            border-left: 3px solid #0068FF;
             font-style: italic;
-            color: #ffcc00;
+            color: #0068FF;
             font-size: 0.9rem;
             display: none;
             transition: all 0.3s ease;
@@ -350,14 +351,15 @@
         
         .hash-details {
             font-size: 0.7rem;
-            color: #aaa;
+            color: #999;
         }
         
         .input-area {
             display: flex;
-            padding: 20px;
-            background-color: rgba(0, 0, 0, 0.8);
-            border-top: 2px solid #00ffcc;
+            padding: 15px 20px;
+            background-color: white;
+            border-top: 1px solid #e0e0e0;
+            margin-bottom: 50px;
         }
         
         .user-info {
@@ -368,67 +370,62 @@
         input, select {
             flex: 1;
             padding: 12px 15px;
-            border: none;
-            border-radius: 5px;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background-color: white;
+            color: #333;
             font-size: 1rem;
             transition: all 0.3s ease;
         }
         
-        /* Làm mờ ô nhập tin nhắn */
         #messageInput {
-            background-color: rgba(255, 255, 255, 0.05);
-            color: #4a4a4a;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: #f7f7f7;
+            color: #f4f4f4;
+            border: 1px solid #e0e0e0;
         }
         
         #messageInput:focus {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #4a4a4a;
-            border-color: #00ffcc;
+            background-color: white;
+            color: #f4f4f4;
+            border-color: #0068FF;
             outline: none;
         }
         
         #messageInput::placeholder {
-            color: #666;
+            color: #999;
         }
         
         button {
             padding: 12px 25px;
             margin-left: 10px;
             border: none;
-            border-radius: 5px;
-            background-color: #00ffcc;
-            color: #000;
+            border-radius: 20px;
+            background-color: #0068FF;
+            color: white;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
         }
         
         button:hover {
-            background-color: #00e6b8;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 255, 204, 0.4);
+            background-color: #0055d4;
         }
         
         button:disabled {
-            background-color: #666;
+            background-color: #ccc;
             cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
         }
         
         .info-box {
-            background-color: rgba(0, 20, 40, 0.8);
+            background-color: #f9f9f9;
             padding: 15px;
             margin-top: 20px;
             border-radius: 10px;
-            border-left: 4px solid #ff9900;
+            border-left: 4px solid #0068FF;
         }
         
         .info-box h3 {
-            color: #ff9900;
+            color: #0068FF;
             margin-bottom: 10px;
         }
         
@@ -440,14 +437,14 @@
         }
         
         .encoding-selector label {
-            color: #00ffcc;
+            color: #0068FF;
             font-weight: bold;
         }
         
         .loading {
             text-align: center;
             padding: 20px;
-            color: #aaa;
+            color: #999;
         }
         
         @keyframes fadeIn {
@@ -479,11 +476,12 @@
         /* Responsive design */
         @media (max-width: 600px) {
             .container {
-                border-radius: 10px;
+                border-radius: 0;
+                height: 100vh;
             }
             
-            h1 {
-                font-size: 1.8rem;
+            .header-title {
+                font-size: 1.2rem;
             }
             
             .input-area {
@@ -547,21 +545,22 @@
                 🔐 Đăng nhập
             </button>
         </form>
-        
-        <!-- <div class="login-info">
-            <p><strong>Lưu ý:</strong> Mật khẩu mặc định là <code>123456</code></p>
-            <p>Tin nhắn sẽ được mã hóa bằng SHA-256 để bảo mật</p>
-        </div> -->
     </div>
 
     <!-- Main App (Hidden until login) -->
     <div class="container" id="appContainer">
         <header>
-            <h1>Hội ngựa què</h1>
-            <p class="subtitle">Chuồng ngựa</p>
-            <div class="status" id="connectionStatus">Đang kết nối đến Firebase...</div>
-            <div class="user-identity" id="userIdentity">Đang nhận diện người dùng...</div>
-            <button class="logout-btn" onclick="logout()">🚪 Đăng xuất</button>
+            <div class="header-left">
+                <div>
+                    <div class="header-title">Hội ngựa què</div>
+                    <div class="header-subtitle">Chuồng ngựa</div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="status" id="connectionStatus">Đang kết nối...</div>
+                <div class="user-identity" id="userIdentity">Đang nhận diện...</div>
+                <button class="logout-btn" onclick="logout()">🚪 Đăng xuất</button>
+            </div>
         </header>
         
         <div class="chat-container">
@@ -571,9 +570,6 @@
             
             <div class="input-area">
                 <div style="display: flex; flex-direction: column; width: 100%;">
-                    <div class="user-info">
-                        <input type="text" id="username" placeholder="Tên hiển thị của bạn...">
-                    </div>
                     <div style="display: flex;">
                         <input type="text" id="messageInput" placeholder="Nhập tin nhắn của bạn..." disabled>
                         <button id="sendButton" disabled>Gửi</button>
@@ -731,33 +727,36 @@
             showApp();
         });
 
-        // Hàm xử lý hover để dịch - ĐÃ SỬA
-        function setupHoverToTranslate(element, messageText) {
-            let hoverTimer;
+        // Hàm xử lý hover để thay thế hash bằng tin nhắn gốc
+        function setupHoverToTranslate(element, originalMessage) {
+            let isShowingOriginal = false;
+            let originalContent = element.innerHTML;
             
-            element.addEventListener('mouseenter', startHover);
-            element.addEventListener('mouseleave', endHover);
-            element.addEventListener('touchstart', startHover);
-            element.addEventListener('touchend', endHover);
-            
-            function startHover(e) {
-                e.preventDefault();
-                
-                // Hiển thị ngay lập tức khi hover
-                hoverTimer = setTimeout(() => {
-                    messageText.classList.add('show');
-                }, 100); // Giảm thời gian chờ xuống 100ms
-            }
-            
-            function endHover() {
-                if (hoverTimer) {
-                    clearTimeout(hoverTimer);
-                    hoverTimer = null;
+            element.addEventListener('mouseenter', function() {
+                if (!isShowingOriginal) {
+                    element.innerHTML = `<div class="message-text" style="display: block; margin: 0;">${originalMessage}</div>`;
+                    isShowingOriginal = true;
                 }
-                
-                // Ẩn bản dịch khi rời chuột
-                messageText.classList.remove('show');
-            }
+            });
+            
+            element.addEventListener('mouseleave', function() {
+                if (isShowingOriginal) {
+                    element.innerHTML = originalContent;
+                    isShowingOriginal = false;
+                }
+            });
+            
+            // Hỗ trợ cho thiết bị cảm ứng
+            element.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                if (!isShowingOriginal) {
+                    element.innerHTML = `<div class="message-text" style="display: block; margin: 0;">${originalMessage}</div>`;
+                    isShowingOriginal = true;
+                } else {
+                    element.innerHTML = originalContent;
+                    isShowingOriginal = false;
+                }
+            });
         }
         
         // Hàm thêm tin nhắn với hash SHA-256
@@ -802,15 +801,13 @@
                 <div class="message-actions">
                     <div class="hash-details">Độ dài: 64 ký tự hex</div>
                 </div>
-                <div class="message-text">${message}</div>
             `;
             
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
             
             const hashElement = messageElement.querySelector('.message-hash');
-            const textElement = messageElement.querySelector('.message-text');
-            setupHoverToTranslate(hashElement, textElement);
+            setupHoverToTranslate(hashElement, message);
             
             setTimeout(() => {
                 messageElement.classList.remove('new-message');
@@ -932,7 +929,6 @@
             
             document.getElementById('userIdentity').innerHTML = 
                 `👤 <strong>${username}</strong> | 🆔 <code>${userFingerprint}</code>`;
-            document.getElementById('username').value = username;
             
             const connectedRef = database.ref(".info/connected");
             connectedRef.on("value", function(snap) {
@@ -960,19 +956,6 @@
         document.getElementById('sendButton').addEventListener('click', sendMessageHandler);
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') sendMessageHandler();
-        });
-        
-        // Cập nhật username khi người dùng thay đổi
-        document.getElementById('username').addEventListener('input', function(e) {
-            username = e.target.value.trim() || 'Người dùng';
-            localStorage.setItem('chatUsername', username);
-            
-            const loginData = JSON.parse(localStorage.getItem('userLogin') || '{}');
-            loginData.username = username;
-            localStorage.setItem('userLogin', JSON.stringify(loginData));
-            
-            document.getElementById('userIdentity').innerHTML = 
-                `👤 <strong>${username}</strong> | 🆔 <code>${userFingerprint}</code>`;
         });
         
         function sendMessageHandler() {
