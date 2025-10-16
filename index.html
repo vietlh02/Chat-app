@@ -710,6 +710,11 @@
             return CryptoJS.SHA256(text).toString(CryptoJS.enc.Hex);
         }
 
+        // Hàm tạo dấu *** với độ dài bằng tin nhắn gốc
+        function generateAsterisks(text) {
+            return '*'.repeat(text.length);
+        }
+
         // Format hash để hiển thị đẹp hơn
         function formatHash(hash) {
             return hash.match(/.{1,8}/g).join(' ');
@@ -816,7 +821,7 @@
             });
         }
 
-        // Hàm thêm tin nhắn với hash SHA-256
+        // Hàm thêm tin nhắn với dấu ***
         function addMessage(user, message, messageType = 'other', timestamp = null, messageId = null, fingerprint = null) {
             if (messageId && loadedMessageIds.has(messageId)) return;
             if (messageId) loadedMessageIds.add(messageId);
@@ -837,9 +842,9 @@
 
             const timeString = timestamp ? new Date(timestamp).toLocaleTimeString('vi-VN') : new Date().toLocaleTimeString('vi-VN');
 
-            // Tạo SHA-256 hash cho tin nhắn
-            const messageHash = generateSHA256Hash(message);
-            const formattedHash = formatHash(messageHash);
+            // Tạo dấu *** với độ dài bằng tin nhắn gốc
+            const asterisks = generateAsterisks(message);
+            const formattedAsterisks = formatHash(asterisks);
 
             const fingerprintDisplay = fingerprint && messageType === 'other' ?
                 `<div class="user-fingerprint">ID: ${fingerprint.substr(0, 8)}...</div>` : '';
@@ -852,11 +857,11 @@
                 </div>
                 ${fingerprintDisplay}
                 <div class="message-hash">
-                    ${formattedHash}
+                    ${formattedAsterisks}
                     <div class="hover-indicator">🖱️ Di chuột để xem</div>
                 </div>
                 <div class="message-actions">
-                    <div class="hash-details">Độ dài: 64 ký tự hex</div>
+                    <div class="hash-details">Độ dài: ${message.length} ký tự</div>
                 </div>
             `;
 
@@ -875,7 +880,7 @@
             }
         }
 
-        // Hàm gửi tin nhắn với hash
+        // Hàm gửi tin nhắn với dấu ***
         function sendMessage(message) {
             if (!isConnected || !isLoggedIn) {
                 addMessage('Hệ thống', 'Chưa kết nối đến server', 'system');
