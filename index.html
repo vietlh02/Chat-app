@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="./horse.png" type="image/png">
     <title>Hội ngựa què</title>
-    
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <!-- CryptoJS for SHA-256 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    
+
     <style>
         * {
             margin: 0;
@@ -19,7 +20,7 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
             background-color: #f0f0f0;
             color: #333;
@@ -29,7 +30,7 @@
             align-items: center;
             padding: 20px;
         }
-        
+
         /* Login Screen */
         .login-container {
             background: white;
@@ -40,36 +41,36 @@
             max-width: 400px;
             text-align: center;
         }
-        
+
         .login-title {
             font-size: 2rem;
             margin-bottom: 10px;
             color: #0068FF;
             font-weight: bold;
         }
-        
+
         .login-subtitle {
             color: #666;
             margin-bottom: 30px;
         }
-        
+
         .login-form {
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
-        
+
         .form-group {
             text-align: left;
         }
-        
+
         .form-label {
             display: block;
             margin-bottom: 8px;
             color: #333;
             font-weight: 500;
         }
-        
+
         .form-input {
             width: 100%;
             padding: 12px 15px;
@@ -80,17 +81,17 @@
             font-size: 1rem;
             transition: all 0.3s ease;
         }
-        
+
         .form-input:focus {
             outline: none;
             border-color: #0068FF;
             box-shadow: 0 0 0 2px rgba(0, 104, 255, 0.2);
         }
-        
+
         .form-input::placeholder {
             color: #999;
         }
-        
+
         .login-btn {
             padding: 12px;
             border: none;
@@ -102,16 +103,16 @@
             transition: all 0.3s ease;
             font-size: 1rem;
         }
-        
+
         .login-btn:hover {
             background: #0055d4;
         }
-        
+
         .login-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
         }
-        
+
         .login-error {
             color: #ff3b30;
             background: rgba(255, 59, 48, 0.05);
@@ -120,14 +121,14 @@
             border-left: 3px solid #ff3b30;
             display: none;
         }
-        
+
         .login-info {
             color: #666;
             font-size: 0.9rem;
             margin-top: 20px;
             line-height: 1.4;
         }
-        
+
         /* Main App */
         .container {
             width: 100%;
@@ -140,7 +141,7 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             display: none;
         }
-        
+
         header {
             background-color: #0068FF;
             padding: 15px 20px;
@@ -149,43 +150,43 @@
             align-items: center;
             color: white;
         }
-        
+
         .header-left {
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        
+
         .header-title {
             font-size: 1.5rem;
             font-weight: bold;
         }
-        
+
         .header-subtitle {
             font-size: 0.9rem;
             opacity: 0.8;
         }
-        
+
         .status {
             padding: 5px 10px;
             border-radius: 15px;
             background-color: rgba(255, 255, 255, 0.2);
             font-size: 0.8rem;
         }
-        
+
         .status.connected {
             background-color: rgba(0, 255, 0, 0.2);
         }
-        
+
         .status.error {
             background-color: rgba(255, 0, 0, 0.2);
         }
-        
+
         .user-identity {
             font-size: 0.8rem;
             opacity: 0.8;
         }
-        
+
         .logout-btn {
             padding: 6px 12px;
             border: none;
@@ -196,17 +197,17 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        
+
         .logout-btn:hover {
             background-color: rgba(255, 255, 255, 0.3);
         }
-        
+
         .chat-container {
             display: flex;
             flex-direction: column;
             height: calc(100% - 60px);
         }
-        
+
         .chat-messages {
             flex: 1;
             padding: 20px;
@@ -216,7 +217,7 @@
             flex-direction: column;
             gap: 15px;
         }
-        
+
         .message {
             max-width: 70%;
             padding: 12px 15px;
@@ -226,20 +227,20 @@
             transition: all 0.3s ease;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
-        
+
         .message.other {
             align-self: flex-start;
             background: white;
             border-bottom-left-radius: 5px;
         }
-        
+
         .message.own {
             align-self: flex-end;
             background: #e3f2fd;
             border-bottom-right-radius: 5px;
             color: #0068FF;
         }
-        
+
         .message.system {
             align-self: center;
             max-width: 90%;
@@ -248,41 +249,41 @@
             text-align: center;
             color: #996600;
         }
-        
+
         .message-header {
             display: flex;
             justify-content: space-between;
             margin-bottom: 5px;
             font-size: 0.8rem;
         }
-        
+
         .message-user {
             font-weight: bold;
         }
-        
+
         .message.other .message-user {
             color: #333;
         }
-        
+
         .message.own .message-user {
             color: #0068FF;
         }
-        
+
         .message.system .message-user {
             color: #996600;
         }
-        
+
         .message-time {
             color: #999;
             font-size: 0.75rem;
         }
-        
+
         .user-fingerprint {
             font-size: 0.7rem;
             color: #888;
             margin-top: 2px;
         }
-        
+
         .message-hash {
             font-family: 'Courier New', monospace;
             word-break: break-all;
@@ -298,11 +299,11 @@
             position: relative;
             color: #666;
         }
-        
+
         .message-hash:hover {
             background-color: rgba(0, 104, 255, 0.1);
         }
-        
+
         .hover-indicator {
             position: absolute;
             top: 5px;
@@ -312,24 +313,24 @@
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-        
+
         .message-hash:hover .hover-indicator {
             opacity: 1;
         }
-        
+
         .hash-prefix {
             color: #0068FF;
             font-weight: bold;
             margin-right: 5px;
         }
-        
+
         .message-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-top: 8px;
         }
-        
+
         .message-text {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             word-break: break-word;
@@ -343,17 +344,17 @@
             display: none;
             transition: all 0.3s ease;
         }
-        
+
         .message-text.show {
             display: block;
             animation: slideDown 0.3s ease;
         }
-        
+
         .hash-details {
             font-size: 0.7rem;
             color: #999;
         }
-        
+
         .input-area {
             display: flex;
             padding: 15px 20px;
@@ -361,13 +362,14 @@
             border-top: 1px solid #e0e0e0;
             margin-bottom: 50px;
         }
-        
+
         .user-info {
             display: flex;
             margin-bottom: 10px;
         }
-        
-        input, select {
+
+        input,
+        select {
             flex: 1;
             padding: 12px 15px;
             border: 1px solid #ddd;
@@ -377,24 +379,24 @@
             font-size: 1rem;
             transition: all 0.3s ease;
         }
-        
+
         #messageInput {
             background-color: #f7f7f7;
             color: #f4f4f4;
             border: 1px solid #e0e0e0;
         }
-        
+
         #messageInput:focus {
             background-color: white;
             color: #f4f4f4;
             border-color: #0068FF;
             outline: none;
         }
-        
+
         #messageInput::placeholder {
             color: #999;
         }
-        
+
         button {
             padding: 12px 25px;
             margin-left: 10px;
@@ -406,16 +408,16 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        
+
         button:hover {
             background-color: #0055d4;
         }
-        
+
         button:disabled {
             background-color: #ccc;
             cursor: not-allowed;
         }
-        
+
         .info-box {
             background-color: #f9f9f9;
             padding: 15px;
@@ -423,124 +425,178 @@
             border-radius: 10px;
             border-left: 4px solid #0068FF;
         }
-        
+
         .info-box h3 {
             color: #0068FF;
             margin-bottom: 10px;
         }
-        
+
         .encoding-selector {
             display: flex;
             align-items: center;
             margin-bottom: 10px;
             gap: 10px;
         }
-        
+
         .encoding-selector label {
             color: #0068FF;
             font-weight: bold;
         }
-        
+
         .loading {
             text-align: center;
             padding: 20px;
             color: #999;
         }
-        
+
         @keyframes fadeIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(20px) scale(0.95); 
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
             }
-            to { 
-                opacity: 1; 
-                transform: translateY(0) scale(1); 
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
             }
         }
-        
+
         @keyframes slideDown {
-            from { opacity: 0; max-height: 0; }
-            to { opacity: 1; max-height: 100px; }
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+
+            to {
+                opacity: 1;
+                max-height: 100px;
+            }
         }
-        
+
         .message.new-message {
             animation: messagePop 0.5s ease;
         }
-        
+
         @keyframes messagePop {
-            0% { transform: scale(0.8); opacity: 0; }
-            70% { transform: scale(1.05); }
-            100% { transform: scale(1); opacity: 1; }
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            70% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
-        
+
         /* Responsive design */
         @media (max-width: 600px) {
             .container {
                 border-radius: 0;
                 height: 100vh;
             }
-            
+
             .header-title {
                 font-size: 1.2rem;
             }
-            
+
             .input-area {
                 flex-direction: column;
             }
-            
-            input, select {
+
+            input,
+            select {
                 margin-bottom: 10px;
             }
-            
+
             button {
                 margin-left: 0;
             }
-            
+
             .message {
                 max-width: 90%;
             }
-            
+
             .message-actions {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 8px;
             }
         }
+
+        /* 🌙 Dark mode styles */
+        body.dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .login-container,
+        body.dark-mode .container {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
+        }
+
+        body.dark-mode header {
+            background-color: #333;
+            color: #fff;
+        }
+
+        body.dark-mode input,
+        body.dark-mode select,
+        body.dark-mode textarea {
+            background-color: #222;
+            color: #ddd;
+            border-color: #555;
+        }
+
+        body.dark-mode .form-input::placeholder,
+        body.dark-mode #messageInput::placeholder {
+            color: #aaa;
+        }
+
+        body.dark-mode .message.other {
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .message.own {
+            background-color: #004c99;
+            color: #fff;
+        }
+
+        body.dark-mode .info-box {
+            background-color: #222;
+            border-left-color: #0084ff;
+        }
     </style>
 </head>
+
 <body>
     <!-- Login Screen -->
     <div class="login-container" id="loginContainer">
         <h1 class="login-title">Chat Hash</h1>
         <p class="login-subtitle">Vui lòng đăng nhập để tiếp tục</p>
-        
+
         <form class="login-form" id="loginForm">
             <div class="form-group">
                 <label class="form-label" for="loginUsername">Tên người dùng</label>
-                <input 
-                    type="text" 
-                    id="loginUsername" 
-                    class="form-input" 
-                    placeholder="Nhập tên của bạn..."
-                    required
-                >
+                <input type="text" id="loginUsername" class="form-input" placeholder="Nhập tên của bạn..." required>
             </div>
-            
+
             <div class="form-group">
                 <label class="form-label" for="loginPassword">Mật khẩu</label>
-                <input 
-                    type="password" 
-                    id="loginPassword" 
-                    class="form-input" 
-                    placeholder="Nhập mật khẩu..."
-                    required
-                >
+                <input type="password" id="loginPassword" class="form-input" placeholder="Nhập mật khẩu..." required>
             </div>
-            
+
             <div class="login-error" id="loginError">
                 Sai tên người dùng hoặc mật khẩu!
             </div>
-            
+
             <button type="submit" class="login-btn" id="loginBtn">
                 🔐 Đăng nhập
             </button>
@@ -559,15 +615,16 @@
             <div class="header-right">
                 <div class="status" id="connectionStatus">Đang kết nối...</div>
                 <div class="user-identity" id="userIdentity">Đang nhận diện...</div>
+                <button class="logout-btn" id="toggleDarkMode">🌙 Dark</button>
                 <button class="logout-btn" onclick="logout()">🚪 Đăng xuất</button>
             </div>
         </header>
-        
+
         <div class="chat-container">
             <div class="chat-messages" id="chatMessages">
                 <div class="loading" id="loadingMessages">Đang khởi tạo ứng dụng...</div>
             </div>
-            
+
             <div class="input-area">
                 <div style="display: flex; flex-direction: column; width: 100%;">
                     <div style="display: flex;">
@@ -577,7 +634,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="info-box">
             <h3>Hướng dẫn sử dụng</h3>
             <p>• 🔐 <strong>Bảo mật</strong>: Đăng nhập bắt buộc để sử dụng</p>
@@ -622,7 +679,7 @@
                 !!navigator.cookieEnabled,
                 !!navigator.javaEnabled()
             ];
-            
+
             let fingerprint = '';
             for (let component of components) {
                 let hash = 0;
@@ -633,7 +690,7 @@
                 }
                 fingerprint += Math.abs(hash).toString(36).substr(0, 4);
             }
-            
+
             return 'user_' + fingerprint;
         }
 
@@ -682,7 +739,7 @@
             document.getElementById('loginContainer').style.display = 'none';
             document.getElementById('appContainer').style.display = 'block';
             isLoggedIn = true;
-            
+
             initializeApp();
         }
 
@@ -694,27 +751,27 @@
         }
 
         // Xử lý đăng nhập
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
             e.preventDefault();
-            
+
             const loginUsername = document.getElementById('loginUsername').value.trim();
             const loginPassword = document.getElementById('loginPassword').value;
             const loginError = document.getElementById('loginError');
-            
+
             if (loginPassword !== DEFAULT_PASSWORD) {
                 loginError.style.display = 'block';
                 return;
             }
-            
+
             if (!loginUsername) {
                 loginError.textContent = 'Vui lòng nhập tên người dùng!';
                 loginError.style.display = 'block';
                 return;
             }
-            
+
             username = loginUsername;
             loginError.style.display = 'none';
-            
+
             const loginData = {
                 username: username,
                 fingerprint: userFingerprint,
@@ -723,7 +780,7 @@
             localStorage.setItem('userLogin', JSON.stringify(loginData));
             localStorage.setItem('chatUsername', username);
             localStorage.setItem('userFingerprint', userFingerprint);
-            
+
             showApp();
         });
 
@@ -731,23 +788,23 @@
         function setupHoverToTranslate(element, originalMessage) {
             let isShowingOriginal = false;
             let originalContent = element.innerHTML;
-            
-            element.addEventListener('mouseenter', function() {
+
+            element.addEventListener('mouseenter', function () {
                 if (!isShowingOriginal) {
                     element.innerHTML = `<div class="message-text" style="display: block; margin: 0;">${originalMessage}</div>`;
                     isShowingOriginal = true;
                 }
             });
-            
-            element.addEventListener('mouseleave', function() {
+
+            element.addEventListener('mouseleave', function () {
                 if (isShowingOriginal) {
                     element.innerHTML = originalContent;
                     isShowingOriginal = false;
                 }
             });
-            
+
             // Hỗ trợ cho thiết bị cảm ứng
-            element.addEventListener('touchstart', function(e) {
+            element.addEventListener('touchstart', function (e) {
                 e.preventDefault();
                 if (!isShowingOriginal) {
                     element.innerHTML = `<div class="message-text" style="display: block; margin: 0;">${originalMessage}</div>`;
@@ -758,15 +815,15 @@
                 }
             });
         }
-        
+
         // Hàm thêm tin nhắn với hash SHA-256
         function addMessage(user, message, messageType = 'other', timestamp = null, messageId = null, fingerprint = null) {
             if (messageId && loadedMessageIds.has(messageId)) return;
             if (messageId) loadedMessageIds.add(messageId);
-            
+
             const chatMessages = document.getElementById('chatMessages');
             const messageElement = document.createElement('div');
-            
+
             let messageClass = 'message';
             if (messageType === 'system') {
                 messageClass += ' system';
@@ -775,18 +832,18 @@
             } else {
                 messageClass += ' other';
             }
-            
+
             messageClass += ' new-message';
-            
+
             const timeString = timestamp ? new Date(timestamp).toLocaleTimeString('vi-VN') : new Date().toLocaleTimeString('vi-VN');
-            
+
             // Tạo SHA-256 hash cho tin nhắn
             const messageHash = generateSHA256Hash(message);
             const formattedHash = formatHash(messageHash);
-            
-            const fingerprintDisplay = fingerprint && messageType === 'other' ? 
+
+            const fingerprintDisplay = fingerprint && messageType === 'other' ?
                 `<div class="user-fingerprint">ID: ${fingerprint.substr(0, 8)}...</div>` : '';
-            
+
             messageElement.className = messageClass;
             messageElement.innerHTML = `
                 <div class="message-header">
@@ -802,29 +859,29 @@
                     <div class="hash-details">Độ dài: 64 ký tự hex</div>
                 </div>
             `;
-            
+
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
-            
+
             const hashElement = messageElement.querySelector('.message-hash');
             setupHoverToTranslate(hashElement, message);
-            
+
             setTimeout(() => {
                 messageElement.classList.remove('new-message');
             }, 500);
-            
+
             if (messageType !== 'system') {
                 document.getElementById('loadingMessages').style.display = 'none';
             }
         }
-        
+
         // Hàm gửi tin nhắn với hash
         function sendMessage(message) {
             if (!isConnected || !isLoggedIn) {
                 addMessage('Hệ thống', 'Chưa kết nối đến server', 'system');
                 return;
             }
-            
+
             const messageData = {
                 userFingerprint: userFingerprint,
                 username: username,
@@ -832,10 +889,10 @@
                 timestamp: Date.now(),
                 userAgent: navigator.userAgent.substr(0, 50)
             };
-            
+
             const tempMessageId = 'temp_' + Date.now();
             addMessage('Bạn', message, 'own', Date.now(), tempMessageId);
-            
+
             database.ref('messages').push(messageData)
                 .then((newRef) => {
                     console.log('Tin nhắn đã gửi thành công, key:', newRef.key);
@@ -845,14 +902,14 @@
                     addMessage('Hệ thống', 'Lỗi gửi tin nhắn: ' + error.message, 'system');
                 });
         }
-        
+
         // Tải lịch sử tin nhắn
         function loadMessageHistory() {
             database.ref('messages').orderByKey().limitToLast(50).once('value')
                 .then(snapshot => {
                     const messages = [];
                     let latestKey = null;
-                    
+
                     snapshot.forEach(childSnapshot => {
                         const messageData = childSnapshot.val();
                         messages.push({
@@ -861,13 +918,13 @@
                         });
                         latestKey = childSnapshot.key;
                     });
-                    
+
                     if (latestKey) {
                         lastMessageKey = latestKey;
                     }
-                    
+
                     messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-                    
+
                     if (messages.length > 0) {
                         messages.forEach(message => {
                             const isOwnMessage = message.userFingerprint === userFingerprint;
@@ -884,7 +941,7 @@
                     } else {
                         document.getElementById('loadingMessages').innerHTML = 'Chưa có tin nhắn nào. Hãy là người đầu tiên!';
                     }
-                    
+
                     startListeningForNewMessages();
                 })
                 .catch(error => {
@@ -892,18 +949,18 @@
                     document.getElementById('loadingMessages').innerHTML = 'Lỗi kết nối database.';
                 });
         }
-        
+
         // Lắng nghe tin nhắn mới
         function startListeningForNewMessages() {
             console.log('Bắt đầu lắng nghe tin nhắn mới...');
-            
+
             database.ref('messages').orderByKey().startAfter(lastMessageKey).on('child_added', (snapshot) => {
                 const messageData = snapshot.val();
                 console.log('Nhận tin nhắn mới:', messageData);
-                
+
                 if (messageData && !loadedMessageIds.has(snapshot.key)) {
                     const isOwnMessage = messageData.userFingerprint === userFingerprint;
-                    
+
                     if (!isOwnMessage) {
                         addMessage(
                             messageData.username,
@@ -914,33 +971,33 @@
                             messageData.userFingerprint
                         );
                     }
-                    
+
                     lastMessageKey = snapshot.key;
                 }
             });
         }
-        
+
         // Khởi tạo ứng dụng
         function initializeApp() {
             if (!firebase.apps.length || !isLoggedIn) {
                 document.getElementById('connectionStatus').textContent = 'Firebase chưa được khởi tạo';
                 return;
             }
-            
-            document.getElementById('userIdentity').innerHTML = 
+
+            document.getElementById('userIdentity').innerHTML =
                 `👤 <strong>${username}</strong> | 🆔 <code>${userFingerprint}</code>`;
-            
+
             const connectedRef = database.ref(".info/connected");
-            connectedRef.on("value", function(snap) {
+            connectedRef.on("value", function (snap) {
                 if (snap.val() === true) {
                     isConnected = true;
                     document.getElementById('connectionStatus').textContent = '✅ Đã kết nối Firebase';
                     document.getElementById('connectionStatus').classList.add('connected');
                     document.getElementById('sendButton').disabled = false;
                     document.getElementById('messageInput').disabled = false;
-                    
+
                     loadMessageHistory();
-                    
+
                 } else {
                     isConnected = false;
                     document.getElementById('connectionStatus').textContent = '❌ Mất kết nối Firebase';
@@ -948,31 +1005,48 @@
                     document.getElementById('sendButton').disabled = true;
                 }
             });
-            
+
             addMessage('Hệ thống', `Chào mừng ${username}!.`, 'system');
         }
-        
+
         // Sự kiện gửi tin nhắn
         document.getElementById('sendButton').addEventListener('click', sendMessageHandler);
-        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+        document.getElementById('messageInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') sendMessageHandler();
         });
-        
+
         function sendMessageHandler() {
             const messageInput = document.getElementById('messageInput');
             const message = messageInput.value.trim();
-            
+
             if (message) {
                 sendMessage(message);
                 messageInput.value = '';
                 messageInput.focus();
             }
         }
-        
+
         // Bắt đầu ứng dụng
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             checkExistingLogin();
+        });
+        // 🌙 Dark Mode Toggle
+        const toggleBtn = document.getElementById('toggleDarkMode');
+
+        // Đọc trạng thái dark mode đã lưu trong localStorage
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        if (isDarkMode) {
+            document.body.classList.add('dark-mode');
+            toggleBtn.textContent = '☀️ Light';
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const enabled = document.body.classList.contains('dark-mode');
+            toggleBtn.textContent = enabled ? '☀️ Light' : '🌙 Dark';
+            localStorage.setItem('darkMode', enabled);
         });
     </script>
 </body>
+
 </html>
